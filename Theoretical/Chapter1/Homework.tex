@@ -67,6 +67,7 @@ now we solve the following inequality
 Give your answers here.
 
 \section*{IV. Prove the error relationship of the Newton method variant.}
+Prove:
 
 iterative equation: $x_{n+1} = x_{n} - \frac{f(x_{n})}{f'(x_{0})}$ ,since
 \begin{align}
@@ -79,8 +80,9 @@ then we got $s=1$, $c=1+\frac{f^{'}(\xi_{n})}{f^{'}(x_{0})}$
 
 
 \section*{V. Prove the convergence of Newton method.}
+Prove:
 
-\hspace{0.45cm} sign $g(x) = tan^{-1} = arctanx , x \in (-\frac{\pi}{2},\frac{\pi}{2})$
+sign $g(x) = tan^{-1} = arctanx , x \in (-\frac{\pi}{2},\frac{\pi}{2})$
 $g^{1}(x) = \frac{1}{1+x^2} \leq 1 $, so g(x) has fix-point .
 
 if g(x) is converge , $a = g(a) \Rightarrow a=arctan \cdot a \Rightarrow a=0 $.
@@ -100,27 +102,77 @@ To sum up ,$\{x_{n}\}$ is converge for any $x_{0} \in (-\frac{\pi}{2},\frac{\pi}
 \section*{VI. Prove that the sequence of values converge.}
 
 the sequence is $x_{1}=\frac{1}{p}, x_{2}=\frac{1}{p+x_{1}},x_{3}= \frac{1}{p+x_{2}},\cdots,x_{n+1}= \frac{1}{p+x_{n}}$.
+
 sign $g(x)=\frac{1}{x+p} ,consider the fix-point of g(x),$ 
+
 then we have $x=\frac{1}{x+p} \Rightarrow x = \frac{-p \pm (p^{2}+4)^{\frac{1}{2}}}{2}$  
+
 $g^{'}(x)<0$ ,g(x) so is monotonically decreasing.
+
 because p>1 ,$x_{1} = \frac{1}{p} \in (0,1) $,use mathematcal induction if $x_{n} \in (0,1)$ ,then $x_{n+1}=\frac{1}{p+x_{n}}$
+
 now we consider the sequence $x_{2n}$ ,$x_{2n}=\frac{1}{p+\frac{1}{p+x_{2n-2}}}$,sign $f(x)=\frac{1}{p+\frac{1}{p+x}}$
+
 then $x_{2n}=f(x_{2n-2})$ ,we can easily see that $x_{2}<x_{4}$ ,assume $x_{2n}<x_{2n-2}$ ,
+
 then $x_{2n+2}-x_{2n}= \frac{1}{p+\frac{1}{p+x_{2n}}} \geq \frac{1}{p+\frac{1}{2x_{2n}}}-x_{2n} \geq 0$
+
 so $x_{2n}$ is monotonically increasing and similarly $x_{2n-1}$ is monotonically decreasing.
+
 because $x_{n}$ > 0,so the sequence $x_{n}$ is converged to $\frac{-p+(p^{2}+4)^{\frac{1}{2}}}{2}$
 
 \section*{VII. what happens in II if $a_{0}<0<b_{0}$?.}
+Prove:
 
-Give your answers here.
+We notice that the error is below $\frac{b_{0}-a_{0}}{2^{n+1}}$ ,
+\begin{align}
+relative \cdot error &= \frac{\|\alpha-x\|}{\|\alpha\|} = \frac{\frac{b_{0}-a_{0}}{2^{n+1}}}{min\{b_{0},a_{0}\}} < \varepsilon \\
+& \Rightarrow n+1 \geq \log_{2}\left(\frac{b_{0}-a_{0}}{\varepsilon \cdot min\{b_{0},a_{0}\}}\right) \\
+&\Rightarrow n \geq \log_{2}\left(\frac{b_{0}-a_{0}}{\varepsilon \cdot min\{b_{0},a_{0}\}}\right)-1 \\
+\end{align}
+
+
 
 \section*{VIII. consider multiplicity of root.}
 \subsection*{I-a. how can a multiple root be detected?}
-Give your answers here.
+Prove:
+
+if $f(x)=0$ has a k multiple root at $x_{0}$ .
+
+the taylor expansion of $f(x)$ around $x_{0}$ is 
+\begin{align}
+f(x) &= \frac{1}{k!}(x-x_{0})^{k}f^{(k)}(\xi)
+\end{align}
+
+then $\lim_{x \to x_{0}} \frac{f(x)}{(x-x_{0})^{i}}$
+$
+ = \left\{
+\begin{array}{ll}
+constant & \text{if } i \geq k \\
+0 & \text{if } i < k
+\end{array}
+\right.
+$
+
+we just need to check if $\frac{f(x_{0})}{(x-x_{0})^{i}}=0$ or not.
+
 \subsection*{I-b. Prove the quadratic convergence of modification.}
+Prove:
 
+if $r$ is a k-th multiple root of $f(x)$ ,
 
-Give your answers here.
+we perform the k-th taylor expansion of $f(x)$ and $f^{'}(x)$around point $r$ ,
+
+\begin{align}
+  f(x) &= f(r)+(x-r)f^{'}(r)+\frac{1}{2}(x-r)^2f^{(2)}(r)+\cdots + \frac{1}{(k+1)!}(x-r)^{k+1}f^{(k+1)}(\xi) \\
+  f^{'}(x) &= f^{'}(r)+(x-r)f^{(2)}(r) + \frac{1}{2}(x-r)^2f^{(3)}(r)+\cdots+\frac{1}{k!}(x-r)^{k}f^{(k+1)}(\eta) 
+\end{align}
+
+then we have $k\cdot \frac{f(x_{n})}{f^{'}(x_{n})}=\frac{k \cdot f^{k+1}(\xi)(x_{n}-r)}{(k+1)\cdot f^{k+1}(\eta)}$ ,so 
+\begin{align}
+x_{n+1}-r &=x_{n}-r-k\cdot \frac{f(x_{n})}{f^{'}(x_{n})}=x_{n}-r-\frac{kf^{k+1}(\xi)(x_{n}-r)}{(k+1)f^{k+1}(\eta)} \\
+\frac{x_{n+1}-r}{x_{n}-r} &= 1-\frac{kf^{k+1}(\xi)(x_{n}-r)}{(k+1)f^{k+1}(\eta)} 
+\end{align}
 
 % ===============================================
 \section*{ \center{\normalsize {Acknowledgement}} }

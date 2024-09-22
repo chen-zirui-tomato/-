@@ -1,16 +1,16 @@
 # Fdb version 4
-["bibtex Homework"] 1726971287.49535 "Homework.aux" "Homework.bbl" "Homework" 1726971345.52194 0
-  "./Homework-blx.bib" 1726971344.74139 342 5ba7332ec7ecc2dc9c6b1bd96e3d9aad ""
+["bibtex Homework"] 1727022624.60062 "Homework.aux" "Homework.bbl" "Homework" 1727022625.96996 0
+  "./Homework-blx.bib" 1727022625.49385 342 5ba7332ec7ecc2dc9c6b1bd96e3d9aad ""
   "./citation.bib" 1726900524.4836 2342 d754ede02c4d6fe0eba762a8ba74e801 ""
   "/usr/share/texlive/texmf-dist/bibtex/bst/biblatex/biblatex.bst" 1678141846 65484 b7949c47a88ed6dca66ebc7a04577312 ""
-  "Homework.aux" 1726971344.73839 221 a112b263881c86c4b1fa2d457d2e39cf "pdflatex"
+  "Homework.aux" 1727022625.49185 221 9a463c48eba571fe8db7112487505ed2 "pdflatex"
   (generated)
   "Homework.bbl"
   "Homework.blg"
   (rewritten before read)
-["pdflatex"] 1726971343.45497 "/home/chenzr/C++/Numerical_Analyse/Theoretical/Chapter1/Homework.tex" "Homework.pdf" "Homework" 1726971345.52238 0
+["pdflatex"] 1727022624.75042 "/home/chenzr/C++/Numerical_Analyse/Theoretical/Chapter1/Homework.tex" "Homework.pdf" "Homework" 1727022625.97019 0
   "/etc/texmf/web2c/texmf.cnf" 1726664477.1349 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/chenzr/C++/Numerical_Analyse/Theoretical/Chapter1/Homework.tex" 1726971343.16542 4699 3e9269f9694a2ec42f9b69393efecbf9 ""
+  "/home/chenzr/C++/Numerical_Analyse/Theoretical/Chapter1/Homework.tex" 1727022519.29582 6213 88f966a0d9a84efa4cf57de45978f35d ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/tcrm0600.tfm" 1136768653 1536 12e8c510d3e158fdd0e9a42e75118bd9 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/tcrm0800.tfm" 1136768653 1536 05df9db6aeccc4eea94fec15c9024f79 ""
@@ -102,10 +102,10 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1707919699 40399 f2c302f7d2af602abb742093540a5834 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1726714838.31111 5472669 54eaf61a88b6b7896ebd0dac973cb29c ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1726714942 8215691 3116ac9801543e975aac59992086c976 ""
-  "Homework.aux" 1726971344.73839 221 a112b263881c86c4b1fa2d457d2e39cf "pdflatex"
-  "Homework.bbl" 1726971287.7026 512 242e9db92557ac81f6b30ce4f9334513 "bibtex Homework"
-  "Homework.run.xml" 1726971344.74239 2556 75419b04ecda5645d422ceda2907d81c "pdflatex"
-  "Homework.tex" 1726971343.16542 4699 3e9269f9694a2ec42f9b69393efecbf9 ""
+  "Homework.aux" 1727022625.49185 221 9a463c48eba571fe8db7112487505ed2 "pdflatex"
+  "Homework.bbl" 1727022624.74285 512 242e9db92557ac81f6b30ce4f9334513 "bibtex Homework"
+  "Homework.run.xml" 1727022625.49485 2556 75419b04ecda5645d422ceda2907d81c "pdflatex"
+  "Homework.tex" 1727022519.29582 6213 88f966a0d9a84efa4cf57de45978f35d ""
   (generated)
   "Homework-blx.bib"
   "Homework.aux"
