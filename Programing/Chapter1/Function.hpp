@@ -8,6 +8,7 @@ public:
         double h = 1e-6;
         return (operator()(x+h) - operator()(x-h))/(2*h);
     }
+    virtual ~Function(){}
 };
 
 #endif

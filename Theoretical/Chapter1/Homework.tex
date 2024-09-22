@@ -1,0 +1,134 @@
+\documentclass[a4paper]{article}
+\usepackage{amsmath}
+\usepackage[affil-it]{authblk}
+\usepackage{graphicx}
+
+\usepackage[backend=bibtex,style=numeric]{biblatex}
+
+\usepackage{geometry}
+\geometry{margin=1.5cm, vmargin={0pt,1cm}}
+\setlength{\topmargin}{-1cm}
+\setlength{\paperheight}{29.7cm}
+\setlength{\textheight}{25.3cm}
+
+\addbibresource{citation.bib}
+
+\begin{document}
+% =================================================
+\title{Numerical Analysis homework 1}
+
+\author{ZiruiChen 22435036
+  \thanks{Electronic address: \texttt{18107732576@163.com}}}
+\affil{(24), Zhejiang University }
+
+
+\date{Due time: \today}
+
+\maketitle
+
+%\begin{abstract}
+ %   The abstract is not necessary for the theoretical homework, 
+   % but for the programming project, 
+    %you are encouraged to write one.      
+%\end{abstract}
+
+
+
+
+
+% ============================================
+\section*{I. consider bisection method with the interval[1.5,3.5]}
+
+\subsection*{I-a.what is the width of the interval at nth step?}
+
+width $= 1/2^{n-1}$
+
+\subsection*{I-b.what is the supremum distance between root and midpoint?}
+
+supremum distance is half of the interval at the n-th step $1/2^{n}$
+
+\section*{II. Prove the relationship between the step and relative error.}
+Prove:
+
+width of the interval at n-step is $(b_{0}-a_{0}) \cdot \frac{1}{2^{n}}$
+so the relative error is $\frac{(b_{0}-a_{0})\frac{1}{2^{n}}}{true value}$,
+and obviously, true value $\geq a_{0}$.
+now we solve the following inequality 
+
+\begin{align}
+  \frac{(b_{0}-a_{0}) \cdot \frac{1}{2^{n}}}{\text{true value}} & \leq \varepsilon \\
+  \frac{1}{2^{n}} & \leq \frac{\varepsilon a_{0}}{b_{0}-a_{0}} \\
+  2^{n+1} & \geq \frac{b_{0}-a_{0}}{\varepsilon a_{0}} \\
+  n+1 & \geq \log_{2}\left(\frac{b_{0}-a_{0}}{\varepsilon a_{0}}\right)
+\end{align}
+
+\section*{III.perform iteration of Newton method.}
+
+Give your answers here.
+
+\section*{IV. Prove the error relationship of the Newton method variant.}
+
+iterative equation: $x_{n+1} = x_{n} - \frac{f(x_{n})}{f'(x_{0})}$ ,since
+\begin{align}
+   (x_{n+1}-a) & =C \cdot (x_{n}-a)^{s} \\
+  x_{n+1}-a & = x_{n}-a+ \frac{f(x_{n})}{f'(x_{0})} \\
+  & = x_{n} - a + \frac{f(x_{n})-f(a)}{f^{'}(x_{0})(x_{n}-a)} \\
+  & = (x_{n}-a)(1+\frac{f^{'}(\xi)}{f^{'}(x_{0})})
+\end{align}
+then we got $s=1$, $c=1+\frac{f^{'}(\xi_{n})}{f^{'}(x_{0})}$
+
+
+\section*{V. Prove the convergence of Newton method.}
+
+\hspace{0.45cm} sign $g(x) = tan^{-1} = arctanx , x \in (-\frac{\pi}{2},\frac{\pi}{2})$
+$g^{1}(x) = \frac{1}{1+x^2} \leq 1 $, so g(x) has fix-point .
+
+if g(x) is converge , $a = g(a) \Rightarrow a=arctan \cdot a \Rightarrow a=0 $.
+
+for any $x_{0} \in (0,\frac{\pi}{2})$, we have $x_{n} \in (0,\frac{\pi}{2})$ ,
+for any n $x_{n+1}-x_{n} = arctan \cdot x_{n} - x_{n} < 0 $ , 
+
+so the sequence  $\{x_{n}\}$ is monitoncally decreasing and bounded,converge.
+
+Similarly ,it can be obtained that for any $x_{0} \in (-\frac{\pi}{2},0)$ ,
+the sequence $\{x_{n}\}$ is monotonically increasing and bounded, also converge.
+
+if $x_{0}=0$ ,is converge.
+
+To sum up ,$\{x_{n}\}$ is converge for any $x_{0} \in (-\frac{\pi}{2},\frac{\pi}{2})$ .
+
+\section*{VI. Prove that the sequence of values converge.}
+
+the sequence is $x_{1}=\frac{1}{p}, x_{2}=\frac{1}{p+x_{1}},x_{3}= \frac{1}{p+x_{2}},\cdots,x_{n+1}= \frac{1}{p+x_{n}}$.
+sign $g(x)=\frac{1}{x+p} ,consider the fix-point of g(x),$ 
+then we have $x=\frac{1}{x+p} \Rightarrow x = \frac{-p \pm (p^{2}+4)^{\frac{1}{2}}}{2}$  
+$g^{'}(x)<0$ ,g(x) so is monotonically decreasing.
+because p>1 ,$x_{1} = \frac{1}{p} \in (0,1) $,use mathematcal induction if $x_{n} \in (0,1)$ ,then $x_{n+1}=\frac{1}{p+x_{n}}$
+now we consider the sequence $x_{2n}$ ,$x_{2n}=\frac{1}{p+\frac{1}{p+x_{2n-2}}}$,sign $f(x)=\frac{1}{p+\frac{1}{p+x}}$
+then $x_{2n}=f(x_{2n-2})$ ,we can easily see that $x_{2}<x_{4}$ ,assume $x_{2n}<x_{2n-2}$ ,
+then $x_{2n+2}-x_{2n}= \frac{1}{p+\frac{1}{p+x_{2n}}} \geq \frac{1}{p+\frac{1}{2x_{2n}}}-x_{2n} \geq 0$
+so $x_{2n}$ is monotonically increasing and similarly $x_{2n-1}$ is monotonically decreasing.
+because $x_{n}$ > 0,so the sequence $x_{n}$ is converged to $\frac{-p+(p^{2}+4)^{\frac{1}{2}}}{2}$
+
+\section*{VII. what happens in II if $a_{0}<0<b_{0}$?.}
+
+Give your answers here.
+
+\section*{VIII. consider multiplicity of root.}
+\subsection*{I-a. how can a multiple root be detected?}
+Give your answers here.
+\subsection*{I-b. Prove the quadratic convergence of modification.}
+
+
+Give your answers here.
+
+% ===============================================
+\section*{ \center{\normalsize {Acknowledgement}} }
+Give your acknowledgements here(if any).
+
+
+\printbibliography
+
+If you are not familiar with \texttt{bibtex}, 
+it is acceptable to put a table here for your references.
+\end{document}

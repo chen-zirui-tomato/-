@@ -1,0 +1,92 @@
+/home/chenzr/C++/Numerical_Analyse/Programing/Chapter1
+
+
+void solve_f1(double eps = 1e-6,double delta = 1e-6, int max_iter = 50) {
+    double a, b;
+    int n;
+
+    std::cout << "Solving with Bisection Method" << std::endl;
+    std::cout << "Select the number of test: ";
+    std::cin >> n;
+
+    std::cout<<"Enter the lower bound of the interval: "<< std::endl;
+    std::cin>>a;
+    std::cout<<"Enter the upper bound of the interval: "<< std::endl;
+    std::cin>>b;
+    std::cout<<"Enter the default value of eps,delta,max_iter ";
+    std::cout<<"(or press enter to use default values)"<< std::endl;
+    std::cin.ignore();
+    char c = std::cin.get(); 
+
+    //选择函数
+    Function *selected_function = nullptr;
+    switch (n) {
+        case 1:
+            selected_function = new F1();
+            break;
+        case 2:
+            selected_function = new F2();
+            break;
+        case 3:
+            selected_function = new F3();
+            break;
+        case 4:
+            selected_function = new F4();
+            break;
+        default:
+            std::cout << "Invalid choice. Exiting." << std::endl;
+            return;
+    }
+
+    if (c == '\n'){
+        Bisection_Method solver_f1(*selected_function, a, b, eps, delta, max_iter);
+        double x = solver_f1.solve();
+        std::cout << "A root with default values is: " << x << std::endl;
+    }
+    else{
+        std::cin>>eps>>delta>>max_iter;
+        Bisection_Method solver_f1(*selected_function, a, b, eps, delta, max_iter);
+        double x = solver_f1.solve();
+        std::cout << "A root with custom values is: " << x << std::endl;
+    }
+    return;
+}
+
+
+void solve_f2(int n,double eps = 1e-7, int max_iter = 50) {
+    double x0;
+    std::cout << "Solving with Newton Method" << std::endl;
+    std::cout<<"Enter the initial value of x0: "<< std::endl;
+    std::cin>>x0;
+    x0 = x0*Pi/180.;
+    std::cout<<"Enter the default value of eps,max_iter ";
+    std::cout<<"(or press enter to use default values)"<< std::endl;
+    std::cin.ignore();
+    char c = std::cin.get(); 
+
+    Function *selected_function = nullptr;
+    switch (n) {
+        case 1:
+            selected_function = new F1();
+            break;
+        case 2:
+            selected_function = new F2();
+            break;
+        default:
+            std::cout << "Invalid choice. Exiting." << std::endl;
+            return;
+    }
+
+    if (c == '\n'){
+        Newton_Method solver_f1(*selected_function, x0, eps, max_iter);
+        double x = solver_f1.solve();
+        std::cout << "A root with default values is: " << x/Pi*180. << std::endl;
+    }
+    else{
+        std::cin>>eps>>max_iter;
+        Newton_Method solver_f1(*selected_function, x0, eps, max_iter);
+        double x = solver_f1.solve();
+        std::cout << "A root with custom values is: " << x/Pi*180. << std::endl;
+    }
+    return ;
+}
