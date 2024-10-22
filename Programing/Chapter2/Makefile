@@ -1,16 +1,14 @@
-# Makefile for compiling specific C++ files and a LaTeX document
-
-# 编译器
 CXX = g++
 
 # 编译选项
 CXXFLAGS = -std=c++11 -Wall -Wextra
 
 # 源文件
-SRCS = $(wildcard *.cpp)
+# SRCS = ProblemF.cpp
+SRCS = $(wildcard Problem*.cpp)
 
-# 目标文件（去掉扩展名）
-TARGETS = $(SRCS:.cpp=)
+# 目标文件（提取文件名去掉前缀 "Problem"）
+TARGETS = $(SRCS:Problem%.cpp=%)
 
 # LaTeX 文件
 TEXFILE = report.tex
@@ -20,7 +18,7 @@ PDF = $(TEXFILE:.tex=.pdf)
 all: $(TARGETS) $(PDF)
 
 # 编译目标
-%: %.cpp
+%: Problem%.cpp
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
 # 编译 LaTeX 文件
@@ -29,6 +27,6 @@ $(PDF): $(TEXFILE)
 
 # 清理目标
 clean:
-	rm -f $(TARGETS) $(PDF) *.aux *.log *.fls *.fdb_latexmk *.synctex*
+	rm -f $(TARGETS) $(PDF) *.aux *.log *.fls *.fdb_latexmk *.synctex* output*.dat
 
 .PHONY: all clean

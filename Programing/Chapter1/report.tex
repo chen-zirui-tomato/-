@@ -1,0 +1,138 @@
+\documentclass[UTF8]{ctexart}
+\usepackage{geometry}
+\geometry{margin=1.5cm, vmargin={0pt,1cm}}
+\setlength{\topmargin}{-1cm}
+\setlength{\paperheight}{29.7cm}
+\setlength{\textheight}{25.3cm}
+
+% useful packages.
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{enumerate}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{fancyhdr}
+\usepackage{layout}
+\usepackage{listings}
+\usepackage{xcolor}
+\lstset{language=C++}
+\setlength{\headheight}{13pt}  % 增加头部高度
+\usepackage{float, caption}
+
+% Listings setting for code formatting
+\lstset{
+    basicstyle=\ttfamily,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    tabsize=4
+}
+
+% some common commands
+\newcommand{\dif}{\mathrm{d}}
+\newcommand{\avg}[1]{\left\langle #1 \right\rangle}
+\newcommand{\difFrac}[2]{\frac{\dif #1}{\dif #2}}
+\newcommand{\pdfFrac}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\OFL}{\mathrm{OFL}}
+\newcommand{\UFL}{\mathrm{UFL}}
+\newcommand{\fl}{\mathrm{fl}}
+\newcommand{\op}{\odot}
+\newcommand{\Eabs}{E_{\mathrm{abs}}}
+\newcommand{\Erel}{E_{\mathrm{rel}}}
+
+\begin{document}
+
+\pagestyle{fancy}
+\fancyhead{}
+\lhead{陈梓锐, 22435036}
+\chead{数值分析第一次作业}
+\rhead{Oct.17th, 2024}
+
+\section{测试程序的设计思路}
+\begin{enumerate}
+    \item 在 \texttt{Function.h} 里，定义了 \texttt{Function} 类，它有两个虚函数，分别用于计算函数值和导数值。
+    \item 在 \texttt{EquationSolver.h} 中，定义了 \texttt{Function} 类的派生类 \texttt{EquationSolver}，用于求解方程，装入了三种不同的求解方法。
+    \begin{enumerate}
+        \item \texttt{Bisection\_Method} 类：二分法求解器，继承自 \texttt{EquationSolver} 类，重写了其虚函数 \texttt{solver}。
+        \item \texttt{Newton\_Method} 类：牛顿法求解器，继承自 \texttt{EquationSolver} 类，重写了其虚函数 \texttt{solver}。
+        \item \texttt{Secant\_Method} 类：割线法求解器，继承自 \texttt{EquationSolver} 类，重写了其虚函数 \texttt{solver}。
+    \end{enumerate}
+    \item 其他部分包括 \texttt{ProblemB.cpp} :
+    \par make后运行可执行文件./ProblemB,实现了问题B的求解,运行后先输入求解的题号，输入题目要求的上下界，程序会输出相应方程的根。
+    \\第一题： \par \includegraphics{B1.png},
+    \\第二题 \par \includegraphics{B2.png}, 
+    \\第三题 \par \includegraphics{B3.png}, 
+    \\第四题 \par \includegraphics{B4.png}。
+    \item \texttt{ProblemC.cpp} :
+    \par 运行可执行文件./ProblemC,实现了问题C的求解,
+    \par 运行后输入4.5\par \includegraphics{C4.5.png}
+    或7.7\par \includegraphics{C7.7.png},程序会输出方程的根。
+    \item \texttt{ProblemD.cpp} :
+    \\运行可执行文件./ProblemD,实现了问题D的求解,运行后输入方程的题号,输入题墓要求的上下界，程序会输出方程的根。
+    \\第一题\par \includegraphics{D1.png}, 
+    \\第二题\par \includegraphics{D2.png}, 
+    \\第三题\par \includegraphics{D3.png}.
+    \item \texttt{ProblemE.cpp}： 
+    \par 运行可执行文件./ProblemE,实现了问题E的求解,运行后输入求解器序号,程序会输出方程的根。
+    \par 第一题：\par \includegraphics{E1.png},
+    \\第二题： \par \includegraphics{E2.png},
+    \\第三题： \par \includegraphics{E3.png}.
+    \item \texttt{ProblemF.cpp} :
+    \par 运行可执行文件./ProblemF,实现了问题F的求解,运行后输入题号，再三输入求解器序号,按照题意输入相应的上下届，程序会输出方程的根。
+    \\第一题： \par \includegraphics{F1.png},
+    \\第二题： \par \includegraphics{F2.png}, 
+    \\第三题： \par \includegraphics{F3.png}.
+\end{enumerate}
+
+\section{部分代码}
+\subsection{Bisection Method}
+\begin{lstlisting}[language=C++]
+for (i = 0; i < max_iter; i++) {
+    h = h / 2;
+    c = a + h;
+    fc = F(c);
+    if (fabs(fc) < eps || h < delta) {
+        return c;
+    } else if (fa * fc > 0) {
+        a = c;
+    }
+}
+\end{lstlisting}
+
+\subsection{Newton's Method}
+\begin{lstlisting}[language=C++]
+for (i = 0; i < max_iter; i++) {
+    double fx = F(x0);
+    if (fabs(fx) < eps) {
+        return x0;
+    } else {
+        x0 = x0 - fx / dfx;
+        dfx = F.derivative(x0);
+    }
+}
+\end{lstlisting}
+
+\subsection{Secant Method}
+\begin{lstlisting}[language=C++]
+fa = F(a);
+fb = F(b);
+for (i = 0; i < max_iter; i++) {
+    s = (b - a) / (fb - fa);
+    a = b;
+    fa = fb;
+    b = b - s * fb;
+    fb = F(b);
+    if (fabs(b - a) < delta || fabs(fb) < eps) {
+        return b;
+    }
+}
+\end{lstlisting}
+
+\end{document}
