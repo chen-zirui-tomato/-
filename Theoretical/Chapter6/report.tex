@@ -1,0 +1,236 @@
+\documentclass[a4paper]{article}
+\usepackage[affil-it]{authblk}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage[backend=bibtex,style=numeric]{biblatex}
+
+\usepackage{geometry}
+\geometry{margin=1.5cm, vmargin={0pt,1cm}}
+\setlength{\topmargin}{-1cm}
+\setlength{\paperheight}{29.7cm}
+\setlength{\textheight}{25.3cm}
+
+\addbibresource{citation.bib}
+
+\begin{document}
+% =================================================
+\title{Numerical Analysis homework 1}
+
+\author{Zirui Chen 22435036
+  \thanks{Electronic address: \texttt{18107732576@163.com}}}
+\affil{(24), Zhejiang University }
+
+
+\date{Due time: \today}
+
+\maketitle
+
+%\begin{abstract}
+ %   The abstract is not necessary for the theoretical homework, 
+   % but for the programming project, 
+    %you are encouraged to write one.      
+%\end{abstract}
+
+
+
+
+
+% ============================================
+\section*{I}
+\subsection*{a}
+Hermite interpolation: $y(x) = p_{3}(x)$
+\begin{table}[h]
+    \centering
+    \begin{tabular}{c|cccc}
+        
+        $-1 $ &$y(-1)$ & & &\\
+        
+        $0 $ &$y(0)$ &$y(0)-y(-1)$ & & \\
+        
+        $0 $ &$y(0)$ &$y^{'}(0)$ &$y^{'}(0)-y(0)+y(-1)$  & \\
+ 
+        $1 $ &$y(1)$ &$y(1)-y(0)$ &$y(1)-y(0)-y^{'}(0)$ &$\frac{1}{2}(y(1)-2y^{'}(0)-y(-1))$ \\
+    \end{tabular} 
+\end{table}
+So, 
+$$p_{3}(x) = y(0) + y(0)-y(-1)(x+1) + (y^{'}(0)-y(0)+y(-1))(x+1)x + \frac{1}{2}(y(1)-2y^{'}(0)-y(-1))x^{2}(x+1) + \frac{y^{4}(\xi)}{4!}x^{2}(x+1)(x-1),$$
+$$\int_{-1}^{1} y(t) \,dx = \frac{1}{3}(y(-1) + 4y(0) + y(1)) + \int_{-1}^{1} \frac{y^{4}(\xi)}{4!}x^{2}(x+1)(x-1) \,dx $$
+this is Simpson's rule.
+
+\subsection*{b}
+According to the discussion above.
+\begin{align}
+    E^{S}(y) &= \int_{-1}^{1} \frac{y^{4}(\xi)}{4!}x^{2}(x+1)(x-1) \,dx \\
+             &= \frac{y^{4}(\eta )}{4!} \int_{-1}^{1} x^{2}(x+1)(x-1) \,dx \\
+             &=\frac{y^{4}(\eta )}{4!} \cdot -\frac{4}{15} \\
+             &=-\frac{y^{4}(\eta )}{90}.
+\end{align}
+
+\subsection*{c}
+According to (a), (b). Set $x_{k} = a + kh, h = \frac{b-a}{n}, n \in 2\mathbb{N} $.
+\begin{align}
+    \int_{-1}^{1} y(t) \,dx &= \sum_{k = 0}^{n/2} \int_{x_{2k}}^{x_{2k+2}} y(t) \,dt \\ 
+                            &= \sum_{k = 0}^{n/2} \int_{x_{2k}}^{x_{2k+2}} 
+                            p_{3}(y;x_{2k},x_{2k+1},x_{2k+1}, x_{2k+2};t) + E_{k}^{S}(y) \,dt\\
+                            &= \sum_{k = 0}^{n/2} \frac{1}{3}(y(x_{2k}) + 4y (x_{2k+1}) + f(x_{2k+2})) + \sum_{k=0}^{n/2} E_{k}^{S}(y)  \\
+\end{align}
+
+Consider $\sum_{k=0}^{n/2} E_{k}^{S}(y)$, from the discussion in b, 
+we know $$ E_{k}^{S}(y)=\int_{x_{2k}}^{x_{2k+2}} \frac{y^{4}(\eta_{k})}{4!}(x-x_{2k+1})^{2}(x-x_{2k})(x-x_{2k+2}) \,dx 
+        = -\frac{y^{4}(\eta_{k} )h^{5}}{90}.$$So,
+\begin{align}
+    \sum_{k=0}^{n/2} E_{k}^{S}(y) &= \sum_{k=0}^{n/2} -\frac{y^{4}(\eta_{k} )h^{4}}{90} \\
+                                  &= -\frac{y^{4}(\eta )h^{4}}{90}\cdot \frac{n}{2} \\
+                                  &= -\frac{y^{4}(\eta )h^{4}(b-a)}{180} \\
+\end{align}
+
+
+
+\section*{II}
+\subsection*{a}
+Prove:
+
+The remainder of composite trapezoidal rule is $E_{n}(f) = -\frac{(b-a)^{3}}{12n^{2}}f^{''}(\xi)$.
+
+$f(x) = e^{-x^{2}}, f^{'}(x) = -2xe^{-x^{2}}, f^{''}(x) = (4x^{2} - 2)e^{-x^{2}}$, 
+So $f^{''}(\xi) \leq 2 \Rightarrow \left\lvert E_{n}(f)\right\rvert  \leq \frac{1}{6n^{2}}$.
+
+therefore, we need $n>578$.
+
+\subsection*{b}
+Prove;
+
+The remainder of composite Simpson's rule is $E_{n}(f) = - \frac{(b-a)^{5}}{180n_{4}}f^{(4)}(\xi)$.
+$f^{(4)}(x) = e^{-x^{2}}(16x^{4} - 48x^{2} + 24)$, So $f^{(4)}(\xi) \leq 12 \Rightarrow \left\lvert E_{n}(f)\right\rvert  \leq \frac{1}{15n_{4}}$.
+
+Therefore, we need $n>20$.
+
+\section*{III}
+\subsection*{a}
+According to the problem statement:
+$$
+\left\{
+\begin{array}{rl}
+&\int_{0}^{+\infty} e^{-t}(t^{2}+at+b) \,dx = 0 ,\\
+&\int_{0}^{+\infty} e^{-t}(t^{2}+at+b)t \,dt = 0 ,\\
+\end{array}
+\right.
+\Rightarrow 
+\left\{
+\begin{array}{rl}
+&2 + a + b = 0 ,\\
+&6 + 2a + b = 0 ,\\
+\end{array}
+\right.
+\Rightarrow 
+\left\{
+\begin{array}{rl}
+&a = -4 ,\\
+&b = 2 ,\\
+\end{array}
+\right.
+$$
+
+So, $\pi_{2}(t) = t^{2} - 4t + 2$
+
+
+\subsection*{b}
+$\pi_{2}(t)$ has two roots at $t = 2-\sqrt{2}$ and $t = 2 + \sqrt{2}$.
+$$
+\left\{
+\begin{array}{rl}
+&A_{1} = \int_{0}^{+\infty} e^{-x}\frac{x^{2} - 4x + 2}{(x -2+\sqrt{2})(-2\sqrt{2})} \,dx = \frac{2+\sqrt{2}}{4} ,\\
+&A_{2} = \int_{0}^{+\infty} e^{-x}\frac{x^{2} - 4x + 2}{(x -2-\sqrt{2})(2\sqrt{2})} \,dx = \frac{2-\sqrt{2}}{4} ,\\
+\end{array}
+\right.
+$$
+$E_{2}(f) = \frac{f^{(4)}(\tau)}{4!}\int_{0}^{+\infty} (x^{2} - 4x + 2)e^{-x} \,dx = \frac{f^{(4)}(\tau)}{6}$
+
+
+\subsection*{c}
+Use $I = A_{1}f(t_{1}) + A_{2}f(t_{2})$ ,where $f(t) = \frac{1}{1+t}\, t_{1} = 2-\sqrt{2}$ and $t_{2} = 2+\sqrt{2}$.
+
+So, Numerically, 
+\begin{align}
+    I &= \frac{2+\sqrt{2}}{4}(\frac{1}{3-\sqrt{2}}) + \frac{2-\sqrt{2}}{4}(\frac{1}{3+\sqrt{2}}) \\
+      &= \frac{4}{7}\approx 0.57142857.
+\end{align}
+So, $E_{2}(f) = \frac{f^{(4)}(\tau )}{6} = \frac{4}{(1+ \tau)^{5}} = 0.596349361 - I \approx 0.02491879.$
+ 
+
+
+\section*{IV}
+\subsection*{a}
+\begin{align}
+    &h_{m}(x_{m}) = 1, h_{m}(x_{k}) = 0, q_{m}(x_{m}) = 0, q_{m}(x_{k}) = 0, \\
+    &&h_{m}^{'}(x_{m}) = 0, h_{m}^{'}(x_{k}) = 0, q_{m}^{'}(x_{m}) = 1, q_{m}^{'}(x_{k}) = 0, k\neq m\\
+\end{align}
+
+
+$$
+\left\{
+\begin{array}{rl}
+h_{m}(x) &= l_{m}^{2}(t)(a_{m}+b_{m}t) ,\\
+h_{m}^{'}(x) &= 2l_{m}(t)l_{m}^{'}(t)(a_{m}+b_{m}t) + l_{m}^{2}(t)b_{m} ,\\
+\end{array}
+\right.
+\Rightarrow
+\left\{
+\begin{array}{rl}
+& a_{m} + b_{m}x_{m} = 1,\\
+& 2l_{m}^{'}(x_{m})(a_{m}+b_{m}x_{m}) + b_{m} = 0,\\
+\end{array}
+\right.
+\Rightarrow
+\left\{
+\begin{array}{rl}
+& a_{m} = 1 + 2l_{m}^{'}(x_{m})x_{m},\\
+& b_{m} = -2l_{m}^{'}(x_{m}),\\
+\end{array}
+\right.
+$$
+
+$$
+\left\{
+\begin{array}{rl}
+q_{m}(x) &= l_{m}^{2}(t)(c_{m}+d_{m}t) ,\\
+q_{m}^{'}(x) &= 2l_{m}(t)l_{m}^{'}(t)(c_{m}+d_{m}t) + l_{m}^{2}(t)d_{m} ,\\
+\end{array}
+\right.
+\Rightarrow
+\left\{
+\begin{array}{rl}
+& c_{m} + d_{m}x_{m} = 0,\\
+& 2l_{m}^{'}(x_{m})(c_{m}+d_{m}x_{m}) + d_{m} = 1,\\
+\end{array}
+\right.
+\Rightarrow
+\left\{
+\begin{array}{rl}
+& c_{m} = -x_{m},\\
+& d_{m} = 1,\\
+\end{array}
+\right.
+$$
+
+\subsection*{b}
+Do Gauss intergration to find n interpolation points in the interval $[a,b]$, then do Hermite interpolation to get the interpolating polynomial
+$p(t) = \sum_{m = 1}^{n} [h_{m}(t)f_{m} + q_{m}(t)f_{m}^{'}] $.
+So,
+$$I_{n}(f) = \sum_{m = 1}^{n} [w_{m}f_{m} + \mu _{m}f_{m}^{'}]$$
+where $w_{m} = \int_{a}^{b} h_{m}(t)\rho(t) \,dt $ and $\mu _{m} = \int_{a}^{b} q_{m}(t)\rho(t) \,dt $.
+
+\subsection*{c}
+From the discussion above, we have $\mu _{m} = \int_{a}^{b} q_{m}(t)\rho(t) \,dt $, 
+if we want $\mu_{m} = 0$, for all $m = 1,2,\cdots,n$, we need
+$$\int_{a}^{b} (-x_{m} + t)l_{m}^{2}(t)\rho(t) \,dt = 0.$$
+Because $l_{m}(t) \in \mathbb{P} _{n-1}, (-x_{m} + t)l_{m}(t) \in \mathbb{P} _{n}$, 
+and $(-x_{m} + t)l_{m}(t) = \prod _{k=1}^{n} (t-x_{k})$, so when we do Gauss integration on $[a,b]$, 
+$\prod _{k=1}^{n} (t-x_{k})$ is orthonormal polynomial with degree $n$, thus $\int_{a}^{b} (-x_{m} + t)l_{m}(t)\rho(t) \,dt = 0$.
+
+% ===============================================
+\section*{ \center{\normalsize {Acknowledgement}} }
+Give your acknowledgements here(if any).
+
+\end{document}

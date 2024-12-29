@@ -1,0 +1,222 @@
+\documentclass[a4paper]{article}
+\usepackage[affil-it]{authblk}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage[backend=bibtex,style=numeric]{biblatex}
+
+\usepackage{geometry}
+\geometry{margin=1.5cm, vmargin={0pt,1cm}}
+\setlength{\topmargin}{-1cm}
+\setlength{\paperheight}{29.7cm}
+\setlength{\textheight}{25.3cm}
+
+\addbibresource{citation.bib}
+
+\begin{document}
+% =================================================
+\title{Numerical Analysis homework 1}
+
+\author{Zirui Chen 22435036
+  \thanks{Electronic address: \texttt{18107732576@163.com}}}
+\affil{(24), Zhejiang University }
+
+
+\date{Due time: \today}
+
+\maketitle
+
+%\begin{abstract}
+ %   The abstract is not necessary for the theoretical homework, 
+   % but for the programming project, 
+    %you are encouraged to write one.      
+%\end{abstract}
+
+
+
+
+
+% ============================================
+\section*{I}
+$$<u,v> = \int_{a}^{b} \rho(t)u(t)\overline{v(t)} \,dx = \int_{a}^{b} \rho(t)\overline{u(t)\overline{ v(t)}} \,dt =  \overline{<v,u>} $$
+$$<\lambda u,v> = \int_{a}^{b} \lambda \rho(t)u(t)\overline{v(t)} \,dx = \lambda <u,v>$$
+$$<u,\lambda v> = \int_{a}^{b} \rho(t)u(t)\overline{\lambda v(t)} \,dx = \overline{\lambda}<u,v>$$
+$$<u,u> = \int_{a}^{b} \rho(t)\left\lvert u(t)\right\rvert^{2}  \,dx \geq 0 $$
+
+\section*{II}
+
+\subsection*{a}
+\begin{align}
+    <t_{n}, t_{m}> &= \int_{-1}^{1} \frac{\cos (n\arccos x) \cos (m\arccos x)}{\sqrt{1-x^{2}} } \,dx \\
+                   &= \int_{0}^{\pi } \cos mt \cos nt \,dx =
+                   \left\{
+                    \begin{array}{rl}
+                    &0, \qquad m \neq n \\
+                    &\frac{\pi}{2}, \qquad m = n \neq 0\\
+                    &\pi, \qquad m = n = 0 \\
+                    \end{array}
+                    \right.
+\end{align}
+
+\subsection*{b}
+Chebyshev: $T_{0}=1. T_{1}=x, T_{2}=2x^{2}-1$
+normalize: $T^{*}_{0}=\sqrt{\frac{1}{\pi}}. T^{*}_{1}=\sqrt{\frac{2}{\pi}}x, T^{*}_{2}=\sqrt{\frac{2}{\pi}}(2x^{2}-1)$,
+Chebyshev polynomials are orthogonal on the interval $[-1,1]$.
+
+\section*{III}
+
+\subsection*{a}
+From II.b, we have orthogonal system ${T_{0}^{*}, T_{1}^{*}, T_{2}^{*}}$,
+\begin{align}
+    <y(x), T_{0}^{*}> &= \int_{-1}^{1} \rho(x) y(x)T_{0}^{*} \,dx = \frac{2}{\sqrt{\pi}}\\
+    <y(x), T_{1}^{*}> &= \int_{-1}^{1} \rho(x) y(x)T_{1}^{*} \,dx = 0 \\
+    <y(x), T_{2}^{*}> &= \int_{-1}^{1} \rho(x) y(x)T_{2}^{*} \,dx = -\frac{2\sqrt{2}}{3\sqrt{\pi}}\\
+\end{align}
+
+And Fourier expansion:
+$$y(x) = \sum_{n = 0}^{2} <y(x), T_{n}^{*}>T_{n}^{*} = \frac{2}{\pi} - \frac{4}{3\pi}(2x^{2} - 1). $$
+
+\subsection*{b}
+For normal equation:
+$$y(x) = \sum_{n = 0}^{2}a_{n}\cdot x^{n}$$  
+where $a_{i}$ are the coefficients to be determined by the equation below.
+$$
+\begin{pmatrix}
+<1,1> & <1,x> & <1,x^{2}> \\
+<x,1> & <x,x> & <x,x^{2}> \\
+<x^{2},1> & <x^{2},x> & <x^{2},x^{2}> \\
+\end{pmatrix}\,
+\begin{pmatrix}
+a_{0} \\
+a_{1} \\
+a_{2} \\
+\end{pmatrix}
+= \begin{pmatrix}
+<y(x),1> \\
+<y(x),x> \\
+<y(x),x^{2}> \\
+\end{pmatrix}
+$$
+subsitute the values,
+$$
+\begin{pmatrix}
+\pi & 0 & \frac{\pi}{2} \\
+0 & \frac{\pi}{2} & 0 \\
+\frac{\pi}{2} & 0 & \frac{3\pi}{8} \\
+\end{pmatrix}\,
+\begin{pmatrix}
+a_{0} \\
+a_{1} \\
+a_{2} \\
+\end{pmatrix}
+= \begin{pmatrix}
+2 \\
+0 \\
+\frac{2}{3} \\
+\end{pmatrix}
+$$
+
+\section*{IV}
+\subsection*{a}
+According to the Example 5.55, 
+\begin{align}
+    <1,1> &= 12 , <x,x> = 650, <x^{2},x^{2}> = 60710, \\
+    <1,x> &= 78, <x,x^{2}> = 6084,  \\
+    <1,x^{2}> &= 650.
+\end{align}
+
+Now we Orthonormalize the basis:
+\begin{align}
+    v_{0} &= 1 \\
+    u_{0}^{*} &= \frac{v_{0}}{\left\lVert v_{0}\right\rVert _{2}} = \frac{1}{\sqrt{12}} ; \\
+    v_{1} &= x - <x, u_{0}^{*}>u_{0}^{*} = x - \frac{78}{12} ,\\
+    u_{1}^{*} &= \frac{v_{1}}{ \left\lVert v_{1}\right\rVert _{2} } = \frac{x - \frac{78}{12}}{\sqrt{650}};\\
+    v_{2} &= x^{2} - <x^{2}, u_{0}^{*}>u_{0}^{*} - <x^{2}, u_{1}^{*}>u_{1}^{*} = x^{2} - \frac{650}{12} -\frac{1859}{650}(x - \frac{78}{12}),\\
+    u_{2}^{*} &= \frac{v_{2}}{\left\lVert v_{2}\right\rVert _{2}} =  \qquad;\\
+\end{align}
+
+\subsection*{b}
+
+Set, $ \widehat{\varphi} = \sum_{n = 0}^{2} a_{n}\cdot x_{n} $, where $a_{i}$ are the coefficients to be determined by the equation below.
+$$
+\begin{pmatrix}
+1 & 0 & 0 \\
+0 & 1 & 0 \\
+0 & 0 & 1 \\
+\end{pmatrix}\,
+\begin{pmatrix}
+a_{0} \\
+a_{1} \\
+a_{2} \\
+\end{pmatrix}
+= \begin{pmatrix}
+<y(x),u_{0}^{*}> \\
+<y(x),u_{1}^{*}> \\
+<y(x),u_{2}^{*}> \\
+\end{pmatrix}
+$$
+
+\subsection*{c}
+Orthonormal basis can be reused ,the coefficent matrix of the orthonormal basis is unit matrix, it can be reused.
+
+
+\section*{V}
+\subsection*{Theorem 5.66}
+Prove:
+Because $A^{+}$ is given by $A^{+}y = \sum_{j = 1}^{r} \frac{1}{\sigma _{j}} <y,v_{j}>u_{j}$ 
+expressed in matrix form, we have $A^{+} = U\varSigma ^{+}V^{T}$, and $A=V\varSigma U^{T}$.
+
+PDI-1: consider $A=(a_{1}, a_{2}, \cdots, a_{n})$
+\begin{align}
+    AA^{+}a_{i} &= A\cdot \sum_{j = 1}^{r} \frac{1}{\sigma _{j}} <a_{i}, v_{j}>u_{j} \\
+                &= \sum_{j = 1}^{r} \frac{1}{\sigma _{j}} <a_{i}, v_{j}>\cdot Au_{j} \\
+                &= \sum_{j = 1}^{r} \frac{1}{\sigma _{j}} <a_{i}, v_{j}>\cdot (\sum_{k = 1}^{r} \sigma _{k} <u_{j},u_{k}>v_{k}) \\
+                &= \sum_{j = 1}^{r} \frac{1}{\sigma _{j}} v_{j}^{T}a_{i}\cdot \sigma _{j} v_{j}\\
+                &= \sum_{j = 1}^{r} v_{j} v_{j}^{T}a_{i} \\
+                &= a_{i}
+\end{align}
+So, $AA^{+}A = A$.
+
+PDI-2 is as same as PDI-1.
+
+PDI-3:
+Because U and V are orthonormal matrix, we have $U^{T}U = V^{T}V = I$, 
+and $\varSigma ^{+} \varSigma = \begin{pmatrix}
+    I_{r} & 0 \\
+    0 & 0 \\
+\end{pmatrix}
+$
+Therefore, $AA^{+} = V\varSigma ^{+}U^{T}U\varSigma V^{T} = V\begin{pmatrix}
+    I_{r} & 0 \\
+    0 & 0 \\
+\end{pmatrix} V^{T}$
+it is obvious that $(AA^{+})^{*} = AA^{+}$,$(A^{+}A)^{*} = A^{+}A$ is also true.
+
+\begin{flushright} % 右对齐
+  $\square$ 
+\end{flushright} 
+
+\subsection*{Theorem 5.67}
+Prove:
+
+If A has linearly independent columns, $A=(a_{1},\cdots,a_{n})$, 
+then $A^{*}A = (a_{1}^{*}a_{1} + \cdots + a_{n}^{*}a_{n})$ is full rank, so $A^{*}A$ is invertible.
+
+Consider $A = V\varSigma U^{*}, A^{*} = U \varSigma^{*} V^{*}$, set A has singular value as $\delta _{1}, \cdots, \delta _{r}$, 
+
+so $A^{*}A = V\varSigma^{*}U^{*}U\varSigma V^{*} = diag{\delta _{1}^{2},\cdots,\delta _{r}^{2}}$.
+
+Therefore, $(A^{*}A)^{-1}A^{*} = U\varSigma^{+} V^{T} = A^{+}$
+
+also it is obvious that $A^{+}A = I$
+
+Similarly, $AA^{+}$ is true when $A$ has linearly independent rows.
+\begin{flushright} % 右对齐
+  $\square$ 
+\end{flushright} 
+
+% ===============================================
+\section*{ \center{\normalsize {Acknowledgement}} }
+Give your acknowledgements here(if any).
+
+\end{document}
