@@ -1,0 +1,22 @@
+#include "include/BSpline.cpp"
+#include <fstream>
+
+
+int main(){
+    std::ofstream outfile("bin/testF.dat");
+    double xStart = -5, xEnd = 5, dx = 0.01;
+
+    class f2 :public Function{
+    public:
+        double operator()(double x) const{
+            return 1/(1+x*x);
+        }
+    };
+    
+    BSpline obj(3, f2(), -5, 5, 11, SplineType::Complete);
+    for(double i = xStart+dx; i < xEnd; i += dx){
+        // outfile << i << " " << obj.constructBSpline(-1, 1, i) << std::endl;
+    }
+    outfile.close();
+    return 0;
+}

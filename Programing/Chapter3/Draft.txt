@@ -1,0 +1,180 @@
+void computeNaturalSpline(){ //计算自然三次样条 M(0)=0,M(n)=0
+        //nodeCout - 1= n
+        M.resize(nodeCount - 2); //M【0】= M1 ~ M[nodeCout-3] = Mn-1
+
+        miu.resize(nodeCount - 3); //miu【0】=miu(2) ~ miu[nodeCout-4] = miu(n-1)
+        for(int i = 1;i < nodeCount - 3;i++) 
+            miu.push_back(calmiu(i));
+
+        nabuda.resize(nodeCount - 3); //nabuda【0】=nabuda(1) ~ nabuda[nodeCout-4] = nabuda(n-2)
+        for(int i = 0;i < nodeCount - 4;i++)
+            nabuda.push_back(calNabuda(i));
+            // nabuda.push_back(nodes[i+2] - nodes[i+1]/(nodes[i+2] - nodes[i]));
+       
+        A.resize(nodeCount - 2);
+        for(int i = 0;i < nodeCount-2;i++) for(int j = 0;j < nodeCount-1;j++){
+            if (i == j) A[i][j] = 2.0;
+            if (i == j-1) A[i][j] = nabuda[i];
+            if (i == j+1) A[i][j] = miu[j];
+            else A[i][j] = 0.0;
+        }
+
+        b.resize(nodeCount - 2); //b【0】= d1
+        for(int i = 0; i < nodeCount-2; i++)
+            b.push_back(calCubicDivided(i));
+        
+        caltridiagonal();
+    } 
+
+
+
+    kan kan zhe sha bi zhu shi
+
+    
+    void computeNaturalSpline(){ //计算自然三次样条 M(0)=0,M(n)=0
+        int n = nodeCount - 1 ;
+        //M.resize(nodeCount - 2); //M【0】= M1 ~ M[nodeCout-3] = Mn-1
+        M.resize(n-1);
+        
+        //miu.resize(nodeCount - 3); //miu【0】=miu(2) ~ miu[nodeCout-4] = miu(n-1)
+        miu.resize(n-2);
+        for(int i = 1;i <= n-2;i++) 
+            miu.push_back(calmiu(i));
+
+        //nabuda.resize(nodeCount - 3); //nabuda【0】=nabuda(1) ~ nabuda[nodeCout-4] = nabuda(n-2)
+        nabuda.resize(n-2);
+        for(int i = 0;i <= n-3;i++)
+            nabuda.push_back(calNabuda(i));
+       
+        //A.resize(nodeCount - 2); //A[0][0] = A(1,1) ~ A[nodeCout-3][nodeCout-3] = A(n-1,n-1)
+        A.resize(n-1);
+        for(int i = 0;i <= n-2 ; i++) for(int j = 0;j <= n-2; j++){
+            if (i == j) A[i][j] = 2.0;
+            else if (i == j-1) A[i][j] = nabuda[i];
+            else if (i == j+1) A[i][j] = miu[j];
+            else A[i][j] = 0.0;
+        }
+
+        //b.resize(nodeCount - 2); //b【0】= d1 ~ b[nodeCout-3] = d(n-1)
+        b.resize(n-1);
+        for(int i = 0; i <= n-2; i++)
+            b.push_back(calCubicDivided(i));
+        
+        M.push_back(0.0); //M【nodeCout-1】= M(n）= 0
+        caltridiagonal();
+    } 
+
+
+    # # LaTeX 文件
+# TEXFILE = report.tex
+# PDF = $(TEXFILE:.tex=.pdf)
+
+# # 默认规则
+# all: $(TARGETS) $(PDF)
+
+# # 编译 LaTeX 文件
+# $(PDF): $(TEXFILE)
+# 	xelatex $(TEXFILE)
+
+
+
+
+
+
+double constructBSpline(int i,int k, double x){ //构造bsplineiN，下标i，上标k, 参数x
+    // k =k-1;
+    if(k == 0)  
+        if(t[i-1] < x && x <= t[i]) {
+            // std::cerr << "t = " << t[i] << std::endl; 
+            return 1.0;
+        }
+        else return 0.0;     
+    else{
+        // return (x - t[i-1])/(t[i + k] - t[i-1])*constructBSpline(i, k, x) 
+        //         + (t[i+k+1] - x)/(t[i+k+1] - t[i])*constructBSpline(i+1, k, x); }
+        return (x - t[i-1])/(t[i + k-1] - t[i-1])*constructBSpline(i, k-1, x) 
+                + (t[i+k] - x)/(t[i+k] - t[i])*constructBSpline(i+1, k-1, x); }
+
+
+
+
+    if(k == 0){
+        if (i==degree+1) {
+            if(x >= t[i-1] && x <= t[i]){
+                return 1;
+            }else{
+                return 0;
+            }          
+        }else if(x > t[i-1] && x <= t[i]){
+            return 1;
+        }else{
+            return 0;
+        }
+        // if (x > t[i-1] && x <= t[i]) {
+        //     return 1;
+        // }else {
+        //     return 0;
+        // }          
+    }else if(t[i+n-1]==t[i-1]&&t[i+n]==t[i]){
+        return 0;
+    }else if (t[i+n-1]==t[i-1]) {
+        return (t[i+n]-x)/(t[i+n]-t[i])*constructBSpline(i+1, k-1, x);
+    }else if (t[i+n]==t[i]) {
+        return (x-t[i-1])/(t[i+n-1]-t[i-1])*constructBSpline(i, k-1, x);
+    }else {
+        return (x-t[i-1])/(t[i+n-1]-t[i-1])*constructBSpline(i, k-1, x) 
+            + (t[i+n]-x)/(t[i+n]-t[i])*constructBSpline(i+1, k-1, x);
+    }
+
+
+
+
+    double constructBSpline(int i,int k, double x){ //构造bsplineiN，下标i，上标k, 参数x
+        // k =k-1;
+        if(k == 0)  
+            if(t[i-1] < x && x <= t[i]) 
+                return 1.0;
+            else return 0.0;    
+        else
+            // return (x - t[i-1])/(t[i + k] - t[i-1])*constructBSpline(i, k, x) 
+            //         + (t[i+k+1] - x)/(t[i+k+1] - t[i])*constructBSpline(i+1, k, x); 
+            return ((x - t[i-1])/(t[i + k-1] - t[i-1])*constructBSpline(i, k-1, x) 
+                    + (t[i+k] - x)/(t[i+k] - t[i])*constructBSpline(i+1, k-1, x)); 
+    }
+
+ class f2x:public Function{
+    public:
+        double operator()(double x) const{
+            return sin(x) + x*cos(x);
+        }
+    };
+    class f2y:public Function{
+    public:
+        double operator()(double x) const{
+            return cos(x) - x*sin(x);
+        }
+    };
+    BSpline obj3x(3, f1x(), 0, pi, 160, SplineType::Complete);
+    BSpline obj3y(3, f1y(), 0, pi, 160, SplineType::Complete);
+    for(double i = 0.0+dx; i <= pi; i += dx)
+        outfile5 << obj3x.getValue(i) << " " << obj3y.getValue(i) ;
+
+    std::vector<Point2d> points;
+    for(int i = 0; i<= N; ++i){
+        double t = i*6*pi/N;
+        points.push_back(Point2d(f1x()(t), f1y()(t)));
+    }
+
+    int N2 = 10; //控制点个数
+    std::vector<double> t2;
+    for(int i = 0; i<= N2; ++i){
+        t2.push_back(t2.back() + points[i-1].distance(points[i]));
+    }
+    std::vector<double> t2i;
+    for(int i = 0; i<= N2; ++i){
+        t2i.push_back(t[i]);
+    }
+    BSpline obj4x(3, f1x(), ti, SplineType::Natural);
+    BSpline obj4y(3, f1y(), ti, SplineType::Natural);
+    for(double i = 0.0+dx; i < pi*6; i += dx)
+        outfile6 << obj4x.getValue(i) << " " << obj4y.getValue(i);
