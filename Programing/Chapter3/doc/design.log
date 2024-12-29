@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2024.9.19)  29 DEC 2024 17:28
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2024.9.19)  29 DEC 2024 17:59
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -710,7 +710,7 @@ Package fontspec Info: Font family 'FandolFang-Regular(0)' created for font
 File: zhicheng.png Graphic file (type bmp)
 <zhicheng.png>
  [3]
-Overfull \hbox (15.04834pt too wide) in paragraph at lines 198--201
+Overfull \hbox (15.04834pt too wide) in paragraph at lines 199--202
 \TU/FandolSong-Regular(0)/m/n/10.53937 如 图 所 示，| $\OML/cmm/m/it/10.53937 B[]\OT
 1/cmr/m/n/10.53937 (\OML/cmm/m/it/10.53937 x[]\OT1/cmr/m/n/10.53937 ) = 0\OML/c
 mm/m/it/10.53937 ; B[]\OT1/cmr/m/n/10.53937 (\OML/cmm/m/it/10.53937 x[]\OT1/cmr
@@ -893,16 +893,16 @@ File: ../figure/GP40.png Graphic file (type bmp)
 <../figure/GP40.png>
 File: ../figure/GP160.png Graphic file (type bmp)
 <../figure/GP160.png>
+File: ../figure/SevenFit.png Graphic file (type bmp)
+<../figure/SevenFit.png>
+ [15]
 File: ../figure/sinx.png Graphic file (type bmp)
 <../figure/sinx.png>
 File: ../figure/ex.png Graphic file (type bmp)
 <../figure/ex.png>
- [15]
 File: ../figure/expsinx.png Graphic file (type bmp)
 <../figure/expsinx.png>
-File: ../figure/SevenFit.png Graphic file (type bmp)
-<../figure/SevenFit.png>
- [16] (./design.aux)
+ [16] [17] (./design.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2022/08/05>
@@ -911,10 +911,10 @@ L3 programming layer <2022/08/05>
 Here is how much of TeX's memory you used:
  13811 strings out of 474878
  326810 string characters out of 5762516
- 2082627 words of memory out of 5000000
+ 2083627 words of memory out of 5000000
  35604 multiletter control sequences out of 15000+600000
  567457 words of font info for 102 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  93i,15n,97p,1194b,1667s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on design.pdf (16 pages).
+Output written on design.pdf (17 pages).

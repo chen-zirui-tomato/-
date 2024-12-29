@@ -72,6 +72,7 @@
 \section*{附加分数}
 \begin{enumerate}
     \item 任意阶的样条曲线绘制。
+    \item 误差分析。
     \item 更多例子验证。
 \end{enumerate}
 
@@ -615,6 +616,45 @@ Cumulative chordal length做法先求出函数在$[0, 6\pi]$的总长度，平�
     \caption{N=10, N=40, N=160}
 \end{figure}
 
+
+\subsection*{任意阶的样条}
+因为当阶数增加之后边界条件也需要增加，我测试了七次样条，对函数$\frac{1}{1+x^{2}}$进行拟合结果如下：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.3]{../figure/SevenFit.png}
+\end{figure}
+
+
+
+\subsection*{误差分析}
+\textbf{Complete ppForm Spline}
+
+三次完全样条$S(x)$是一个分段三次多项式，在每个区间上$[x_{i}, x_{i+1}]$可以表示为
+$$S(x) = a_{i} + b_{i}(x-x_{i}) + c_{i}(x-x_{i})^{2} + d_{i}(x-x_{i})^{3}$$
+由误差公式可得
+$$f(x) - S(x) = \frac{-1}{(2k)!}f^{(2k)}(\xi)\prod _{i=0}^{k}(x-x_{i})$$
+其中k是阶数，$\xi \in [x_{0}, x_{n}]$.
+
+考虑到三次样条，在每个分段$[x_{i}, x_{i+1}]$上，误差表达式为$f(x) - S(x) = \frac{-1}{4!}f^{(4)}(\xi)(x-x_{i})^{4}$，
+考虑无穷范数，有$\left\lVert f(x) - S(x)\right\rVert _{\infty} \leq \frac{h^{4}}{4!}\left\lVert f^{(4)}(x)\right\rVert _{\infty}$，
+
+假设$f(x)$在$[x_{0}, x_{n}]$上四阶可导，在每个分段上误差满足
+$\left\lvert f(x) - S(x)\right\rvert = O(h^{4})$
+其中$h = \max _{i} |x_{i+1}-x_{i}|$
+当考虑全局误差时，由于样条的分段特性和光滑性，误差的主项累计在全局上最多仍为$O(h^{4})$,因此全局误差为：
+$$\left\lVert f(x) - S(x)\right\rVert _{\infty}= O(h^{4})$$
+
+如果函数不够光滑，实际收敛阶会低于4.如果使用非均匀节点会使局部误差增大，影响全局误差分布。
+
+
+
+
+
+
+
+
+
 \subsection*{更多例子}
 \textbf{Sinx}
 \begin{figure}[H]
@@ -635,15 +675,6 @@ Cumulative chordal length做法先求出函数在$[0, 6\pi]$的总长度，平�
 \end{figure}
 
 发现这些更多例子都能够良好拟合。
-
-
-\subsection*{任意阶的样条}
-因为当阶数增加之后边界条件也需要增加，我测试了七次样条，对函数$\frac{1}{1+x^{2}}$进行拟合结果如下：
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[scale=0.3]{../figure/SevenFit.png}
-\end{figure}
 
 
 
