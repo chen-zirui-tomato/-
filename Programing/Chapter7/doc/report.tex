@@ -1,0 +1,156 @@
+\documentclass[UTF8]{ctexart}
+\usepackage{geometry}
+\usepackage[backend=biber, style=authoryear]{biblatex} % 示例配置
+\addbibresource{references.bib} % 替换为你的参考文献文件
+\geometry{margin=1.5cm, vmargin={0pt,1cm}}
+\setlength{\topmargin}{-1cm}
+\setlength{\paperheight}{29.7cm}
+\setlength{\textheight}{25.3cm}
+
+% useful packages.
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{enumerate}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{fancyhdr}
+\usepackage{layout}
+\usepackage{listings}
+\usepackage{xcolor}
+\lstset{language=C++}
+\setlength{\headheight}{13pt}  % 增加头部高度
+\usepackage{float, caption}
+
+% Listings setting for code formatting
+\lstset{
+    basicstyle=\ttfamily,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    tabsize=4
+}
+
+% some common commands
+\newcommand{\dif}{\mathrm{d}}
+\newcommand{\avg}[1]{\left\langle #1 \right\rangle}
+\newcommand{\difFrac}[2]{\frac{\dif #1}{\dif #2}}
+\newcommand{\pdfFrac}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\OFL}{\mathrm{OFL}}
+\newcommand{\UFL}{\mathrm{UFL}}
+\newcommand{\fl}{\mathrm{fl}}
+\newcommand{\op}{\odot}
+\newcommand{\Eabs}{E_{\mathrm{abs}}}
+\newcommand{\Erel}{E_{\mathrm{rel}}}
+
+\begin{document}
+
+\pagestyle{fancy}
+\fancyhead{}
+\lhead{陈梓锐}
+\chead{22435036}
+\rhead{\today}
+
+
+%\begin{abstract}
+ %   The abstract is not necessary for the theoretical homework, 
+   % but for the programming project, 
+    %you are encouraged to write one.      
+%\end{abstract}
+
+% ============================================
+\subsection*{设计文档}
+本次大作业要求做五点差分格式在规则或不规则区域，dirichlet或neumann边界条件下求解的偏微分方程的数值解。
+所以只需要求解五点差分格式的矩阵方程组，将得到的解转化成图片即可。
+
+首先，当输入的网格大小为m时，在所有求解点矩阵
+$
+\begin{pmatrix}
+u_{11} & u_{12} & \cdots & u_{1m} \\
+u_{21} & u_{22} & \cdots & u_{2m} \\
+\vdots & \vdots & \ddots & \vdots \\
+u_{m1} & u_{m2} & \cdots & u_{mm}
+\end{pmatrix}
+$之外，包围了一圈边界点，即$
+\begin{pmatrix}
+    u_{00} & u_{01} & \cdots & u_{0m} &u_{0,m+1}\\
+    u_{10} & u_{11} & \cdots & u_{1m} &u_{1,m+1}\\
+    \vdots & \vdots & \ddots & \vdots & \vdots \\
+    u_{m0} & u_{m1} & \cdots & u_{mm} &u_{m,m+1}\\
+    u_{m+1,0} & u_{m+1,1} & \cdots & u_{m+1,m} &u_{m+1,m+1}
+\end{pmatrix}$
+边界点外面再包一圈ghost point，但并不显式的存储在矩阵中，用于计算Neumann边界条件。
+
+在构造矩阵方程组时，只需要考虑内部的点，所以系数矩阵A是一个m阶方阵。
+
+\subsection*{代码结构}
+所有代码放在code文件夹中，头文件放在include文件夹中，源文件放在src文件夹中，build文件夹用于存放编译后的可执行文件，
+opt中存放结果图片，test文件夹用于存放测试用例。
+
+\subsection*{Problem $exp(y+sin(x))$}
+考虑右端项和边界条件都为$exp(y+sin(x))$的函数，在网格数为8,16,32,64的结果如下：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{pic2/RD8.png}
+    \includegraphics[width=0.8\textwidth]{pic2/RD16.png}
+    \includegraphics[width=0.8\textwidth]{pic2/RD32.png}
+    \includegraphics[width=0.8\textwidth]{pic2/RD64.png}
+    \caption{$exp(y+sin(x))$，规则网格数为8,16,32,64，Dirichlet边界。}
+    \label{fig:RD}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{pic2/RN8.png}
+    \includegraphics[width=0.8\textwidth]{pic2/RN16.png}
+    \includegraphics[width=0.8\textwidth]{pic2/RN32.png}
+    \includegraphics[width=0.8\textwidth]{pic2/RN64.png}
+    \caption{$exp(y+sin(x))$，规则网格数为8,16,32,64，Neumann边界。}
+    \label{fig:RN}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{pic2/ID8.png}
+    \includegraphics[width=0.8\textwidth]{pic2/ID16.png}
+    \includegraphics[width=0.8\textwidth]{pic2/ID32.png}
+    \includegraphics[width=0.8\textwidth]{pic2/ID64.png}
+    \caption{$exp(y+sin(x))$，不规则网格数为8,16,32,64，Neumann边界。}
+    \label{fig:ID}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{pic2/IN8.png}
+    \includegraphics[width=0.8\textwidth]{pic2/IN16.png}
+    \includegraphics[width=0.8\textwidth]{pic2/IN32.png}
+    \includegraphics[width=0.8\textwidth]{pic2/IN64.png}
+    \caption{$exp(y+sin(x))$，不规则网格数为8,16,32,64，Neumann边界。}
+    \label{fig:IN}
+\end{figure}
+
+\subsubsection*{误差分析}
+
+
+
+\subsection*{自定义函数$(x+y)^2 + (x-y)^2$}
+
+
+
+
+
+
+
+
+
+
+% ===============================================
+
+\end{document}

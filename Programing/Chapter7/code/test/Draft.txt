@@ -1,0 +1,201 @@
+#include "../include/FD_Method.h"
+#include <fstream>
+
+FD_Method::FD_Method(int m, DynamicFunction& f, DynamicFunction& g, std::string condition_type)
+        : m(m), h(1.0/(m+1)), f(f), g(g), f_values(m+2, std::vector<double>(m+2, 0)), 
+        A(m*m, std::vector<double>(m*m, 0)), g_values(4, std::vector<double>(m, 0))
+        {
+        if(m < 3) throw std::invalid_argument("m should be greater than or equal to 3");
+        for(int i = 0; i < m + 2; i++)
+            x_points.push_back(i * h);
+        for(int i = 0; i < m + 2; i++)
+            y_points.push_back(i * h);
+
+        for(int j = 0; j < m+2; j++) for(int i = 0; i < m+2; i++)
+            f_values[i][j] = f(x_points[i], y_points[j]);
+
+        for(int k = 0; k < m; k++){ 
+            g_values[0][k] = g(x_points[0], y_points[k]);
+            g_values[1][k] = g(x_points[k], y_points[0]);
+            g_values[2][k] = g(x_points[m+1], y_points[k]);
+            g_values[3][k] = g(x_points[k], y_points[m+1]);
+        }
+        if(condition_type == "Dirichilet") this->condition_type == ConditionType::Dirichlet;
+        else if(condition_type == "Neumann") this->condition_type == ConditionType::Neumann;
+        else if(condition_type == "Mixed") this->condition_type == ConditionType::Mixed;
+        else throw std::invalid_argument("condition_type should be Dirichilet, Neumann or Mixed");
+
+        std::cout<<"函数构造成功" << std::endl;
+        };
+
+void FD_Method::construct_A_matrix(){
+    // construct A_matrix (M^2 * M^2)
+    // 1.角点
+    A[0][0] = 4, A[0][1] = A[0][m] = -1;
+    A[m-1][m-1] = 4, A[m-1][m-2] = A[m-1][2*m-1] = -1;
+    A[(m-1)*m][(m-1)*m] = 4, A[(m-1)*m][(m-1)*m+1] = A[(m-1)*m][(m-2)*m] = -1;
+    A[m*m - 1][m*m - 1] = 4, A[m*m - 1][m*m - 2] = A[m*m - 1][(m-1)*m - 1] = -1;
+
+    // 2.边界
+    for(int j = 2; j < m; j++){//上下边界
+        A[(j-1)*m][(j-1)*m] = 4, A[(j-1)*m][(j-1)*m + 1] = A[(j-1)*m][(j-2)*m] = A[(j-1)*m][j*m] = -1;
+        A[j*m - 1][j*m - 1] = 4, A[j*m - 1][j*m - 2] = A[j*m - 1][(j-1)*m - 1] = A[j*m - 1][(j+1)*m - 1] = -1;
+    }
+    for(int i = 2; i < m; i++){//左右边界
+        A[i - 1][i - 1] = 4, A[i - 1][i - 2] = A[i - 1][i] = A[i - 1][m + i -1] = -1;
+        A[(m-1)*m + i - 1][(m-1)*m + i - 1] = 4, A[(m-1)*m + i - 1][(m-1)*m + i - 2] = A[(m-1)*m + i - 1][(m-1)*m + i] = A[(m-1)*m + i - 1][(m-2)*m + i - 1] = -1;
+    }
+
+    // 3.内点
+    for(int i = 2; i < m; i++) for(int j = 2; j < m; j++)
+        A[(j-1)*m + i - 1][(j-1)*m + i - 1] = 4, 
+        A[(j-1)*m + i - 1][(j-1)*m + i - 2] = A[(j-1)*m + i - 1][(j-1)*m + i] =
+        A[(j-1)*m + i - 1][(j-2)*m + i - 1] = A[(j-1)*m + i - 1][j*m + i - 1] = -1;
+
+    // for(int i = 0; i < m*m; i++){
+    //     for(int j = 0; j < m*m; j++)
+    //         std::cout<<A[i][j]<<" ";
+    //     std::cout<<std::endl;
+    // }
+}
+
+void FD_Method::construct_RHS_vector(){
+    switch(condition_type){
+        case ConditionType::Dirichlet:
+            construct_D_condition();
+            break;
+        case ConditionType::Neumann:
+            construct_N_condition();
+            break;
+        case ConditionType::Mixed:
+            construct_M_condition();
+            break;
+    }
+    for(int j = 1; j < m+1; j++) for(int i = 1; i < m+1; i++)
+        f_vector.push_back(f_values[i][j]);
+}
+
+void FD_Method::construct_D_condition(){
+    //1.角点
+    f_values[1][1] += g_values[0][0] + g_values[1][0];
+    f_values[m][1] += g_values[2][0] + g_values[1][m-1];
+    f_values[1][m] += g_values[3][0] + g_values[0][m-1];
+    f_values[m][m] += g_values[3][m-1] + g_values[2][m-1];
+    //2.边界
+    for(int k = 2; k < m ; k++){
+        f_values[1][k] += g_values[0][k];
+        f_values[m][k] += g_values[2][k];
+        f_values[k][1] += g_values[1][k];
+        f_values[k][m] += g_values[3][k];
+    }
+    // 3.对于内点，fij就是f(xi, yj)，不用重新计算
+}
+
+void FD_Method::construct_N_condition(){
+    int x = x_points.size(), y = y_points.size();
+    // 1.角点
+    A[0][0] += -2 , f_values[1][1] += -g_values[0][0]*h - g_values[1][0]*h;
+    A[m-1][m-1] += -2, f_values[m][1] += g_values[2][0]*h - g_values[1][3]*h;
+    A[(m-1)*m][(m-1)*m] += -2, f_values[1][m] += g_values[3][0]*h - g_values[0][3]*h;
+    A[m*m-1][m*m-1] += -2, f_values[m][m] += g_values[3][3]*h + g_values[2][3]*h;
+    // 2.边界
+    for(int k = 2; k < m; k++){
+        A[(k-1)*m][(k-1)*m] += -1, f_values[1][k] += -g_values[0][k];
+        A[k*m-1][k*m-1] += -1, f_values[m][k] += g_values[2][k];
+        A[k-1][k-1] += -1, f_values[k][1] += -g_values[1][k];
+        A[(m-1)*m+k-1][(m-1)*m+k-1] += -1, f_values[k][m] += g_values[3][k];
+    }
+    // for(int i = 0; i < m*m; i++){
+    //     for(int j = 0; j < m*m; j++)
+    //         std::cout<<A[i][j]<<" ";
+    //     std::cout<<std::endl;
+    // }
+}
+
+void FD_Method::construct_M_condition(){
+    // 1.角点
+
+    // 2.边界
+}
+
+void FD_Method::solver(){
+    // 1.构造A矩阵
+    construct_A_matrix();
+
+    // 2.构造右端项
+    construct_RHS_vector();
+
+    // 3.将A和f_vector转换为Eigen类型
+    Eigen::MatrixXd A_eigen(m * m, m * m);
+    Eigen::VectorXd f_eigen(m * m);
+
+    for (int i = 0; i < m * m; i++) {
+        for (int j = 0; j < m * m; j++) {
+            A_eigen(i, j) = A[i][j];
+        }
+        f_eigen(i) = f_vector[i];
+    }
+
+    // 4.使用Eigen求解线性方程组
+    Eigen::VectorXd u_eigen = A_eigen.partialPivLu().solve(f_eigen);
+
+    std::cerr<<"求解成功"<<std::endl;
+
+    // 5.将结果存储或返回给用户
+    // 例如，可以将结果存储到类的成员变量中
+    // this->u_vector = std::vector<double>(u_eigen.data(), u_eigen.data() + u_eigen.size());
+    std::ofstream outPutFile("../opt/data.txt");
+    if(outPutFile.is_open()){
+        for(size_t i = 0; i < m*m; i++){
+            outPutFile << u_eigen(i) << " ";
+            if((i+1) % m == 0) outPutFile << "\n";
+        }
+        outPutFile.close();
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void re_construct_RHS(int i, int j, Sign sign1, Sign sign2){
+    if(sign2 == Sign::null) judge(i, j, sign1);
+    else{
+        judge(i, j, sign1);
+        judge(i, j, sign2);
+    }
+}
+
+void judge(int i, int j, Sign sign){
+    double y;
+    switch(sign){
+        case Sign::up:
+            y = findBoundaryNeighbor(i, j, static_cast<double>(j), 1, sign); //u_ik,u_i,j+1处的边界条件值为y
+            break;
+        case Sign::down:
+            y = findBoundaryNeighbor(i, j, static_cast<double>(j), -1, sign); //ik
+            break;
+        case Sign::right:
+            y = findBoundaryNeighbor(i, j, static_cast<double>(i), 1, sign); //kj
+            break;
+        case Sign::left:
+            y = findBoundaryNeighbor(i, j, static_cast<double>(i), -1, sign); //kj
+            break;
+        default:
+            throw std::invalid_argument("sign should not be null");
+    }
+}
+
+
+
