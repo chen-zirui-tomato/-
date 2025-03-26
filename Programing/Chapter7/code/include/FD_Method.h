@@ -21,6 +21,7 @@ protected:
     // std::vector<double> u_vector;
     // （u_11, u_21,..., u_m1, u_12, u_22,..., u_m2,..., u_1m, u_2m,..., u_mm）T
     DynamicFunction& f;
+    DynamicFunction& b;
     DynamicFunction& gx;
     DynamicFunction& gy;
     //A只有区域内部
@@ -28,6 +29,7 @@ protected:
     Eigen::VectorXd f_eigen;
     Eigen::VectorXd u_eigen;
     //g是边界函数
+    std::vector<std::vector<double>> g_values_real;
     std::vector<std::vector<double>> g_values;
     // construct condition matrix as follow
     // | g_01    g_02   ... g_0m    |
@@ -62,7 +64,7 @@ protected:
 
 public:
 
-    FD_Method(int m, DynamicFunction& f, DynamicFunction& gx, DynamicFunction& gy, 
+    FD_Method(int m, DynamicFunction& f, DynamicFunction& b, DynamicFunction& gx, DynamicFunction& gy, 
             std::string condition_type);
 
     void construct_equation();

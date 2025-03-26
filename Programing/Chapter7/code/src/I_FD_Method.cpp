@@ -1,8 +1,8 @@
 #include "I_FD_Method.h"
 
-I_FD_Method::I_FD_Method(int m, DynamicFunction& f, DynamicFunction& gx, DynamicFunction& gy,
+I_FD_Method::I_FD_Method(int m, DynamicFunction& f, DynamicFunction& b, DynamicFunction& gx, DynamicFunction& gy,
      DynamicFunction& centerFunc, std::string condition_type, std::vector<double> center, double radius):
-    FD_Method::FD_Method(m, f, gx, gy, condition_type), centerFunc(centerFunc), delta(0.01*h), radius(radius)
+    FD_Method::FD_Method(m, f, b, gx, gy, condition_type), centerFunc(centerFunc), delta(0.01*h), radius(radius)
     {
         // code here
         this->center[0] = center[0];
@@ -19,16 +19,18 @@ void I_FD_Method::re_construct_equations(){
                 A((j-1)*m+i-1,k) = 0, A(k, (j-1)*m+i-1) = 0;
             f_values[i][j] = 0;
             }
+        else if(radius < get_Length(p, this->center) < radius + h) 
+            mark_bound[std::make_pair(i,j)] = true;
         }
-    for(int i = 0; i < m+2; i++) for(int j = 0; j < m+2; j++) if(mark_in[std::make_pair(i,j)])
+    for(int i = 0; i < m+2; i++) for(int j = 0; j < m+2; j++) if(mark_bound[std::make_pair(i,j)])
         for(int dx : {-1,0,1}) for(int dy : {-1,0,1}) 
-            if(abs(dx + dy) == 1 && !mark_in[std::make_pair(i+dx,j+dy)]){
+            if(abs(dx + dy) == 1 && mark_in[std::make_pair(i+dx,j+dy)]){
                 Sign sign1 = Sign::null, sign2 = Sign::null;
-                if(dy == -1) (sign1 == Sign::null) ? sign1 = Sign::up : sign2 = Sign::up;
-                else if(dy == +1) (sign1 == Sign::null) ? sign1 = Sign::down : sign2 = Sign::down;
-                else if(dx == -1) (sign1 == Sign::null) ? sign1 = Sign::right : sign2 = Sign::right;
-                else if(dx == +1) (sign1 == Sign::null) ? sign1 = Sign::left : sign2 = Sign::left;
-                re_construct_RHS(i+dx,j+dy,sign1,sign2);
+                if(dy == 1) (sign1 == Sign::null) ? sign1 = Sign::up : sign2 = Sign::up;
+                else if(dy == -1) (sign1 == Sign::null) ? sign1 = Sign::down : sign2 = Sign::down;
+                else if(dx == +1) (sign1 == Sign::null) ? sign1 = Sign::right : sign2 = Sign::right;
+                else if(dx == -1) (sign1 == Sign::null) ? sign1 = Sign::left : sign2 = Sign::left;
+                re_construct_RHS(i,j,sign1,sign2);
             }
     }
 
@@ -78,7 +80,7 @@ void I_FD_Method::findBoundaryNeighbor(int i, int j, double k, int sign_, Sign s
     }while(1);
     length = fabs(length);
     double values = (1.0-h/length)*f(x_points[i], y_points[j])
-                    +h/length*gy(p[0], p[1]);
+                    +h/length*b(p[0], p[1]);
     switch(condition_type)
     {
         case ConditionType::Dirichlet:

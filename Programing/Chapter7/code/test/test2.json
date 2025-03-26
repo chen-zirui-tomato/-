@@ -1,0 +1,13 @@
+{
+    "funcName": "(x*x+y*y)*sin(x*y)",
+    "boundaryFuncName": "sin(x*y)",
+    "boundaryFuncNamex": "y*cos(x*y)",
+    "boundaryFuncNamey": "x*cos(x*y)",
+    "pixelNum": 64,
+    "boundaryCondition": "Neumann",
+    "boundaryStructure": "iRegular",
+    "center": [0.5,0.5],
+    "radius": 0.2,
+    "center_Func": "y*cos(x*y)*((x-0.5)/0.2) + x*cos(x*y)*((y-0.5)/0.2)",
+    "exactSolution" : "sin(x*y)"
+}

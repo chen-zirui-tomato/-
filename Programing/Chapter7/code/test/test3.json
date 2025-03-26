@@ -1,0 +1,13 @@
+{
+    "funcName": "-(x*x+y*y)*exp(x*y)",
+    "boundaryFuncName": "exp(x*y)",
+    "boundaryFuncNamex": "y*exp(x*y)",
+    "boundaryFuncNamey": "x*exp(x*y)",
+    "pixelNum": 64,
+    "boundaryCondition": "Neumann",
+    "boundaryStructure": "IRegular",
+    "center": [0.5,0.5],
+    "radius": 0.2,
+    "center_Func": "y*exp(x*y)*(x-0.5)/0.2+x*exp(x*y)*(y-0.5)/0.2",
+    "exactSolution" : "exp(x*y)"
+}

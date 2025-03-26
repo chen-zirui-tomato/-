@@ -20,7 +20,7 @@ private:
     
 
 public:
-    I_FD_Method(int m, DynamicFunction& f, DynamicFunction& gx, DynamicFunction& gy,
+    I_FD_Method(int m, DynamicFunction& f, DynamicFunction& b, DynamicFunction& gx, DynamicFunction& gy,
                 DynamicFunction& centerFunc, 
                 std::string condition_type, std::vector<double> center, double radius);
 

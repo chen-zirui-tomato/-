@@ -1,21 +1,27 @@
 #include "../include/FD_Method.h"
 
-FD_Method::FD_Method(int m, DynamicFunction& f, DynamicFunction& gx, DynamicFunction& gy, 
-    std::string condition_type): m(m), h(1.0/(m+1)), f(f), gx(gx), gy(gy)
+FD_Method::FD_Method(int m, DynamicFunction& f, DynamicFunction& b, DynamicFunction& gx, DynamicFunction& gy, 
+    std::string condition_type): m(m), h(1.0/(m+1)), f(f), b(b), gx(gx), gy(gy)
     {   
         A.resize(m*m, m*m);
         A.setZero();
         f_values.resize(m+2, std::vector<double>(m+2, 0.0));
         g_values.resize(4, std::vector<double>(m, 0.0));
+        g_values_real.resize(4, std::vector<double>(m, 0.0));
         for(int i=0; i < m+2; i++)
             x_points.push_back(i*h), y_points.push_back(i*h);
         for(int i=0; i < m+2; i++) for(int j=0; j < m+2; j++)
             f_values[i][j] = f(x_points[i], y_points[j])*h*h;
+        for(int i = 1 ;i < m+1; i++)
+            g_values_real[0][i] = b(x_points[0], y_points[i]),
+            g_values_real[1][i] = b(x_points[i], y_points[0]),
+            g_values_real[2][i] = b(x_points[m+1], y_points[i]),
+            g_values_real[3][i] = b(x_points[i], y_points[m+1]);
         for(int i = 1 ;i < m+1; i++){
-            g_values[0][i] = -gy(x_points[0], y_points[i]);
-            g_values[1][i] = -gx(x_points[i], y_points[0]);
-            g_values[2][i] = gy(x_points[m+1], y_points[i]);
-            g_values[3][i] = gx(x_points[i], y_points[m+1]);
+            g_values[0][i] = b(x_points[0], y_points[i]);
+            g_values[1][i] = b(x_points[i], y_points[0]);
+            g_values[2][i] = b(x_points[m+1], y_points[i]);
+            g_values[3][i] = b(x_points[i], y_points[m+1]);
         }
         if(condition_type == "Dirichlet")
             this->condition_type = ConditionType::Dirichlet;
@@ -79,15 +85,15 @@ void FD_Method::construct_RHS_vector(){
 void FD_Method::construct_D_condition(){
     // 边界
     for(int k = 2; k < m; k++)
-        f_values[1][k] += g_values[0][k-1],
-        f_values[m][k] += g_values[2][k-1],
-        f_values[k][1] += g_values[1][k-1],
-        f_values[k][m] += g_values[3][k-1];
+        f_values[1][k] += g_values_real[0][k-1],
+        f_values[m][k] += g_values_real[2][k-1],
+        f_values[k][1] += g_values_real[1][k-1],
+        f_values[k][m] += g_values_real[3][k-1];
     // 角点
-    f_values[1][1] += (g_values[0][0] + g_values[1][0]),
-    f_values[m][1] += (g_values[2][0] + g_values[1][m-1]),
-    f_values[1][m] += (g_values[0][m-1] + g_values[3][0]),
-    f_values[m][m] += (g_values[2][m-1] + g_values[3][m-1]);
+    f_values[1][1] += (g_values_real[0][0] + g_values_real[1][0]),
+    f_values[m][1] += (g_values_real[2][0] + g_values_real[1][m-1]),
+    f_values[1][m] += (g_values_real[0][m-1] + g_values_real[3][0]),
+    f_values[m][m] += (g_values_real[2][m-1] + g_values_real[3][m-1]);
 }
 
 void FD_Method::construct_N_condition(){
@@ -99,10 +105,10 @@ void FD_Method::construct_N_condition(){
         A((m-1)*m+k-1, (m-1)*m+k-1) += -1, f_values[k][m] += g_values[3][k-1]*h;
 
     // 角点
-    A(0, 0) += -2, f_values[1][1] += -g_values[0][0]*h - g_values[1][0]*h,
-    A(m-1, m-1) += -2, f_values[m][1] += g_values[2][0]*h - g_values[1][m-1]*h,
-    A((m-1)*m, (m-1)*m) += -2, f_values[1][m] += -g_values[0][m-1]*h +g_values[3][0]*h,
-    A(m*m-1, m*m-1) += -2, f_values[m][m] += g_values[2][m-1]*h + g_values[3][m-1]*h;
+    A(0, 0) += -2, f_values[1][1] += (-g_values[0][0]*h - g_values[1][0]*h),
+    A(m-1, m-1) += -2, f_values[m][1] += (g_values[2][0]*h - g_values[1][m-1]*h),
+    A((m-1)*m, (m-1)*m) += -2, f_values[1][m] += (-g_values[0][m-1]*h + g_values[3][0]*h),
+    A(m*m-1, m*m-1) += -2, f_values[m][m] += (g_values[2][m-1]*h + g_values[3][m-1]*h);
 }
 
 void FD_Method::construct_M_condition(){}
@@ -119,17 +125,18 @@ void FD_Method::solver(){
         f_eigen(++index) = f_values[i][j];
     A *= 1/h/h;
 
-    // for(int i = 0; i < m*m; i++){ for(int j = 0; j < m*m; j++){
-    //     std::cout<<A(i,j);
+    // for(int i = 0; i < m*m; i++) {for(int j = 0; j < m*m; j++)
+    //     std::cout<<A(i,j)<<" ";
+    //     std::cout<<std::endl;
     // }
-    // std::cout<<std::endl; }
-    // for(int i = 0; i < m*m; i++) std::cout<<f_eigen(i)<<std::endl;
+    // std::cout<<std::endl;
+    // for(int i = 0; i < m*m; i++)
+    //     std::cout<<f_eigen(i)<<" ";
+    // std::cout<<std::endl;
 
     std::cerr<<"开始求解"<<std::endl;
-
-    // Eigen::VectorXd u_eigen = solve_zero_friendly(A, f_eigen);
-    // std::cout << "解向量:\n" << u_eigen << std::endl;
-    u_eigen = A.fullPivLu().solve(f_eigen);
+    u_eigen = A.partialPivLu().solve(f_eigen);
+    // u_eigen = A.fullPivLu().solve(f_eigen);
 
     std::cerr<<"求解完成"<<std::endl;
     std::ofstream outFile("../opt/data.txt");
@@ -184,7 +191,7 @@ void FD_Method::error_L2(std::vector<double>& E_values){
         error += pow(u_eigen(i) - E_values[i], 2);
     }
     error = sqrt(error*h);
-    std::cout<<"L2误差为："<<error<<std::endl;
+    std::cout<<"L2误差为："<<error<<"  ";
 }
 
 void FD_Method::error_L1(std::vector<double>& E_values){
@@ -193,7 +200,7 @@ void FD_Method::error_L1(std::vector<double>& E_values){
         error += fabs(u_eigen(i) - E_values[i]);
     }
     error = h*error;
-    std::cout<<"L1误差为："<<error<<std::endl;
+    std::cout<<"L1误差为："<<error<<"  ";
 }
 
 void FD_Method::error_Linfty(std::vector<double>& E_values){

@@ -7,9 +7,12 @@
 
 int main() {
     std::ifstream ifs("../test/test.json");
+    // std::ifstream ifs("../test/test2.json");
+    // std::ifstream ifs("../test/test3.json");
     nlohmann::json data = nlohmann::json::parse(ifs);
 
     std::string funcName = data["funcName"].get<std::string>();
+    std::string boundaryFuncName  = data["boundaryFuncName"].get<std::string>();
     std::string boundaryFuncNamex = data["boundaryFuncNamex"].get<std::string>();
     std::string boundaryFuncNamey = data["boundaryFuncNamey"].get<std::string>();
     int pixelNum = data["pixelNum"].get<int>();
@@ -22,17 +25,18 @@ int main() {
     
     try {
         DynamicFunction func(funcName);
+        DynamicFunction boundaryFunc(boundaryFuncName);
         DynamicFunction boundaryFuncx(boundaryFuncNamex);
         DynamicFunction boundaryFuncy(boundaryFuncNamey);
         DynamicFunction exact(exact_solution);
         if(boundaryStructure == "Regular") {
-            FD_Method method(pixelNum, func, boundaryFuncx, boundaryFuncy, boundaryCondition);
+            FD_Method method(pixelNum, func, boundaryFunc, boundaryFuncx, boundaryFuncy, boundaryCondition);
             method.construct_equation();
             method.solver();
             method.error_analysis(exact);
         } else {
             DynamicFunction centerFuc(center_Func);
-            I_FD_Method method(pixelNum, func, boundaryFuncx, boundaryFuncy, centerFuc, boundaryCondition, center, radius);
+            I_FD_Method method(pixelNum, func, boundaryFunc, boundaryFuncx, boundaryFuncy, centerFuc, boundaryCondition, center, radius);
             method.I_solver();
             method.error_analysis(exact);
         }
