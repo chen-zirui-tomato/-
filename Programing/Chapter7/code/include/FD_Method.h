@@ -29,7 +29,6 @@ protected:
     Eigen::VectorXd f_eigen;
     Eigen::VectorXd u_eigen;
     //g是边界函数
-    std::vector<std::vector<double>> g_values_real;
     std::vector<std::vector<double>> g_values;
     // construct condition matrix as follow
     // | g_01    g_02   ... g_0m    |
