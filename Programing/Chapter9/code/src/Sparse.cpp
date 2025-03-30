@@ -31,7 +31,7 @@ void sparseVector::set_value(int index, double value){
 
 const double sparseVector::operator()(int index) const{
     if(index <= 0 || index > size)
-        throw std::out_of_range("Index out of range");
+        throw std::out_of_range("Vector index out of range");
     for(auto& p : data) if(p.first == index)
         return p.second;
     return 0;

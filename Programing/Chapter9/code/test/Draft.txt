@@ -1,0 +1,5 @@
+进来
+先确定方程组 generatematrix();
+然后进Vcylce()
+然后relatxion();
+然后限制IRes();

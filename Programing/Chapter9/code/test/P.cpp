@@ -1,6 +1,7 @@
 #include "../include/Multigrid.h"
 #include <fstream>
 #include <string>
+#include <Strategy.h>
 #include "../include/exprtk.hpp"
 #include "json.hpp"
 
@@ -60,5 +61,31 @@ int main() {
         std::cerr << "錯誤: " << e.what() << std::endl;
     }
     system("python3 ../src/plot.py");
+    return 0;
+}
+
+// --------------------------
+// 5. 用户输入驱动示例
+// --------------------------
+int main() {
+    // 假设用户输入如下参数（可从配置文件或命令行读取）
+    std::string restriction_strategy = "half_weighting";
+    std::string interpolation_strategy = "quadratic";
+    std::string cycle_strategy = "f_cycle";
+
+    // 创建策略对象
+    auto restriction = StrategyFactory::createRestriction(restriction_strategy);
+    auto interpolation = StrategyFactory::createInterpolation(interpolation_strategy);
+    auto cycle = StrategyFactory::createCycle(cycle_strategy);
+
+    // 配置求解器
+    Solver solver;
+    solver.setRestriction(std::move(restriction));
+    solver.setInterpolation(std::move(interpolation));
+    solver.setCycle(std::move(cycle));
+
+    // 执行求解
+    solver.solve();
+
     return 0;
 }

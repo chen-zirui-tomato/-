@@ -45,18 +45,21 @@ public:
 
 class ICycle{
 public:
-    virtual sparseVector operator()(int level, sparseMatrix& A, sparseVector& rhs, sparseVector& initial, int nu1, int nu2) = 0;
+    virtual sparseVector operator()(int level, sparseMatrix& A, sparseVector& rhs, sparseVector& initial, int nu1, int nu2,
+                                    std::unique_ptr<IRestriction> restriction, std::unique_ptr<IInterpolation> interpolation) = 0;
     virtual ~ICycle() {}
 };
 
 class VCycle : public ICycle {
 public:
-    virtual sparseVector operator()(int level, sparseMatrix& A, sparseVector& rhs, sparseVector& initial, int nu1, int nu2) override {};
+    virtual sparseVector operator()(int level, sparseMatrix& A, sparseVector& rhs, sparseVector& initial, int nu1, int nu2,
+                                    std::unique_ptr<IRestriction> restriction, std::unique_ptr<IInterpolation> interpolation) override {};
 };
 
 class FMGCycle : public ICycle {
 public:
-    virtual sparseVector operator()(int level, sparseMatrix& A, sparseVector& rhs, sparseVector& initial, int nu1, int nu2) override {};
+    virtual sparseVector operator()(int level, sparseMatrix& A, sparseVector& rhs, sparseVector& initial, int nu1, int nu2,
+                                    std::unique_ptr<IRestriction> restriction, std::unique_ptr<IInterpolation> interpolation) override;
 };
 
 //==============================================================================
