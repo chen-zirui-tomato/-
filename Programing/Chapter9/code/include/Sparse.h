@@ -9,7 +9,7 @@
 
 class sparseVector {
 public:
-    int size;
+    int Size;
     std::vector<std::pair<int, double>> data;
     sparseVector();
     //生成长度为int的零向量
@@ -18,6 +18,8 @@ public:
 
     void set_value(int index, double value);
     void tidyUp();
+    int size() const;
+    void resize(int newSize);
     const double operator()(int) const;
     sparseVector operator+(const sparseVector& other) const;
     sparseVector operator-(const sparseVector& other) const;
@@ -46,11 +48,12 @@ public:
     //实现matrix(i,j)=value!=0
     double& operator()(int i, int j);
     //读取matrix(i,j)
-    const double& operator()(int i, int j) const;
+    double operator()(int i, int j) const;
 
     sparseMatrix Triverse() const;
     //消除0元
     void tidyUp();
+    int size() const;
     void set_value(int row, int col, double value);
     void print() const;
 

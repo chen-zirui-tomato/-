@@ -1,0 +1,5 @@
+/home/chenzr/Lessen/Numerical_Analyse/Programing/Chapter9/code/build/CMakeFiles/NumericalAnalysisLib.dir
+/home/chenzr/Lessen/Numerical_Analyse/Programing/Chapter9/code/build/CMakeFiles/P.dir
+/home/chenzr/Lessen/Numerical_Analyse/Programing/Chapter9/code/build/CMakeFiles/test.dir
+/home/chenzr/Lessen/Numerical_Analyse/Programing/Chapter9/code/build/CMakeFiles/edit_cache.dir
+/home/chenzr/Lessen/Numerical_Analyse/Programing/Chapter9/code/build/CMakeFiles/rebuild_cache.dir

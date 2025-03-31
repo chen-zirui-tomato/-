@@ -1,0 +1,2 @@
+/usr/bin/ar qc libNumericalAnalysisLib.a CMakeFiles/NumericalAnalysisLib.dir/src/Sparse.cpp.o
+/usr/bin/ranlib libNumericalAnalysisLib.a

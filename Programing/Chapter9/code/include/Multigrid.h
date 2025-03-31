@@ -21,8 +21,8 @@ public:
     // sparseVector(*Interpolation)(int , sparseVector& );
     // sparseVector(*Cycle)(int , sparseMatrix& A, sparseVector& b, sparseVector& v0, int nu1, int nu2);
 
-    using IRestrictionFunc = std::function<sparseVector(int, sparseVector&)>;
-    using IInterpolationFunc = std::function<sparseVector(int, sparseVector&)>;
+    using IRestrictionFunc = std::function<sparseVector(int, const sparseVector&)>;
+    using IInterpolationFunc = std::function<sparseVector(int, const sparseVector&)>;
     using ICycleFunc = std::function<sparseVector(int, sparseMatrix&, sparseVector&, sparseVector&, int nu1, int nu2,
                                               std::string, std::string)>;
 
@@ -32,8 +32,8 @@ public:
     sparseVector v_IG;
 
     Multigrid(DynamicFunction& f, DynamicFunction& g, std::string B, DynamicFunction& exact):f(f), g(g), exact(exact){
-        if(B == "Dirichlet") conditionType = Dirichlet;
-        else if(B == "Neumann") conditionType = Neumann;
+        if(B == "Dirichlet") conditionType = ConditionType::Dirichlet;
+        else if(B == "Neumann") conditionType = ConditionType::Neumann;
         else throw std::invalid_argument("Invalid boundary condition");
     };
 
@@ -76,7 +76,8 @@ public:
         for(int j = 1; j <= level*2 - 1; j++)
             if(j % 2 != 0) v.set_value(j, v0((j+1)/2));
             else if(j == 2) v.set_value(j, 1.0/8*(3*v0(1) + 8*v0(2) - v0(3)));
-            else if(j == level*2 - 2) v.set_value(j, 1.0/8*(-1*v0(level*2 - 2) + 6*v0(level*2 - 1) + 3*0v0(level*2 - 3)));
+                                                                                                             //??????
+            else if(j == level*2 - 2) v.set_value(j, 1.0/8*(-1*v0(level*2 - 2) + 6*v0(level*2 - 1) + 3*v0(level*2 - 3)));
             else v.set_value(j, 1.0/16*(9*(v0(j/2) + v0(j/2+1)) - (v0(j/2-1) + v0(j/2+2))));
         return v;
     };
@@ -102,7 +103,8 @@ public:
 
             //接下来是VC-2的实现
             //f^2h
-            sparseVector RHS(level/2-1) = IRes(level, discretors[level].second - discretors[level].first*v0);
+            sparseVector RHS(level/2-1);
+            RHS = IRes(level, discretors[level].second - discretors[level].first*v0);
             sparseVector v_2h(level/2-1);
             v_2h = VCycle(level/2, v_2h, nu1, nu2, res, inter);
             v0 = v0 + IInter(level/2, v_2h);
@@ -118,7 +120,7 @@ public:
     virtual void Solver(int n, std::string, std::string, std::string, int nu1, int nu2, double eps);
 
     double errorAnalysis(){
-        spareseVector v(sol.size());
+        sparseVector v(sol.size());
         for(int i = 1; i <= v.size(); i++)
             v.set_value(i, exact(i,i));
         double err = 0;
@@ -130,7 +132,7 @@ public:
 
 template<int Dim>
 sparseVector Multigrid<Dim>::relaxation(int level,int nu1, sparseVector& v0){
-    h = 1.0/(m+1);
+    h = 1.0/level;
     double w = 2.0/3.0;
     // m = n-1
     int m = discretors[level].first.size();
@@ -140,7 +142,7 @@ sparseVector Multigrid<Dim>::relaxation(int level,int nu1, sparseVector& v0){
     for(int i = 0; i < nu1; i++) v0 = Tw*v0;
     sparseVector current = discretors[level].second*w*h*h/2;
     for(int i = 0; i < nu1; i++) {
-        v0 += current;
+        v0 = v0 + current;
         current = Tw*current;
     }
     return v0;

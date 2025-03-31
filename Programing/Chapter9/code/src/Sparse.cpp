@@ -1,15 +1,24 @@
 #include "../include/Sparse.h"
 #include <math.h>
 
-sparseVector::sparseVector():size(-1), data(){}
+sparseVector::sparseVector():Size(-1), data(){}
 
-sparseVector::sparseVector(int size) : size(size) {
+sparseVector::sparseVector(int size) : Size(size) {
     data.resize(size);
 }
 
 sparseVector::sparseVector(const sparseVector& other) {
-    size = other.size;
+    Size = other.Size;
     data = other.data;
+}
+
+int sparseVector::size() const{
+    return Size;
+}
+
+void sparseVector::resize(int size){
+    Size = size;
+    data.resize(size);
 }
 
 void sparseVector::tidyUp(){
@@ -36,7 +45,7 @@ void sparseVector::set_value(int index, double value){
 }
 
 const double sparseVector::operator()(int index) const{
-    if(index <= 0 || index > size)
+    if(index <= 0 || index > Size)
         throw std::out_of_range("Vector index out of range");
     for(auto& p : data) if(p.first == index)
         return p.second;
@@ -44,9 +53,9 @@ const double sparseVector::operator()(int index) const{
 }
 
 sparseVector sparseVector::operator+(const sparseVector& other) const {
-    if(size != other.size)
+    if(Size != other.Size)
         throw std::invalid_argument("Vector + size not match");
-    sparseVector result(size);
+    sparseVector result(Size);
     for(auto& p : data) for(auto& q : other.data) if(p.first == q.first)
         result.set_value(p.first, p.second + q.second);
     result.tidyUp();
@@ -54,9 +63,9 @@ sparseVector sparseVector::operator+(const sparseVector& other) const {
 }
 
 sparseVector sparseVector::operator-(const sparseVector& other) const {
-    if(size != other.size)
+    if(Size != other.Size)
         throw std::invalid_argument("Vector - size not match");
-    sparseVector result(size);
+    sparseVector result(Size);
     for(auto& p : data) for(auto& q : other.data) if(p.first == q.first)
         result.set_value(p.first, p.second - q.second);
     result.tidyUp();
@@ -64,7 +73,7 @@ sparseVector sparseVector::operator-(const sparseVector& other) const {
 }
 
 sparseVector sparseVector::operator*(double scalar) const {
-    sparseVector result(size);
+    sparseVector result(Size);
     for(auto& p : data)
         result.set_value(p.first, p.second * scalar);
     result.tidyUp();
@@ -74,7 +83,7 @@ sparseVector sparseVector::operator*(double scalar) const {
 sparseVector sparseVector::operator/(double scalar) const {
     if(scalar == 0)
         throw std::invalid_argument("Vector / 0");
-    sparseVector result(size);
+    sparseVector result(Size);
     for(auto& p : data)
         result.set_value(p.first, p.second / scalar);
     result.tidyUp();
@@ -90,7 +99,7 @@ sparseVector & sparseVector::operator = (const sparseVector & rhs){
 
 sparseVector & sparseVector::operator = (sparseVector && rhs){
     std::swap(data, rhs.data);
-    size = rhs.size;
+    Size = rhs.Size;
     return *this;
 }
 
@@ -134,6 +143,10 @@ sparseMatrix sparseMatrix::Triverse() const {
     return result;
 }
 
+int sparseMatrix::size() const {
+    return row;
+}
+
 void sparseMatrix::tidyUp(){
     for(int i = 1; i <= row; i++)
         for(auto it = data[i-1].begin(); it!= data[i-1].end(); )
@@ -172,7 +185,7 @@ double& sparseMatrix::operator()(int i, int j) {
         
 }
 
-const double& sparseMatrix::operator()(int i, int j) const {
+double sparseMatrix::operator()(int i, int j) const {
     for(auto& p : data[i-1])
         if(p.first == j)
             return p.second;
@@ -248,7 +261,7 @@ void sparseMatrix::print() const {
 }
 
 sparseVector sparseMatrix::operator*(const sparseVector& other) const {
-    if(col != other.size)
+    if(col != other.Size)
         throw std::invalid_argument("Matrix * size not match");
     sparseVector result(row);
     for(int i = 1; i <= row; i++){
