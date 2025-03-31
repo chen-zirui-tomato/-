@@ -12,6 +12,12 @@ sparseVector::sparseVector(const sparseVector& other) {
     data = other.data;
 }
 
+void sparseVector::tidyUp(){
+    for(auto it = data.begin(); it!= data.end(); )
+        if(it->second == 0) data.erase(it++);
+        else ++it;
+}
+
 void sparseVector::set_value(int index, double value){
     if(value != 0)
         for(auto& p : data)
@@ -37,6 +43,44 @@ const double sparseVector::operator()(int index) const{
     return 0;
 }
 
+sparseVector sparseVector::operator+(const sparseVector& other) const {
+    if(size != other.size)
+        throw std::invalid_argument("Vector + size not match");
+    sparseVector result(size);
+    for(auto& p : data) for(auto& q : other.data) if(p.first == q.first)
+        result.set_value(p.first, p.second + q.second);
+    result.tidyUp();
+    return result;
+}
+
+sparseVector sparseVector::operator-(const sparseVector& other) const {
+    if(size != other.size)
+        throw std::invalid_argument("Vector - size not match");
+    sparseVector result(size);
+    for(auto& p : data) for(auto& q : other.data) if(p.first == q.first)
+        result.set_value(p.first, p.second - q.second);
+    result.tidyUp();
+    return result;
+}
+
+sparseVector sparseVector::operator*(double scalar) const {
+    sparseVector result(size);
+    for(auto& p : data)
+        result.set_value(p.first, p.second * scalar);
+    result.tidyUp();
+    return result;
+}
+
+sparseVector sparseVector::operator/(double scalar) const {
+    if(scalar == 0)
+        throw std::invalid_argument("Vector / 0");
+    sparseVector result(size);
+    for(auto& p : data)
+        result.set_value(p.first, p.second / scalar);
+    result.tidyUp();
+    return result;
+}
+
 sparseVector & sparseVector::operator = (const sparseVector & rhs){
     if(this == &rhs) return *this;
     sparseVector copy(rhs);
@@ -53,6 +97,8 @@ sparseVector & sparseVector::operator = (sparseVector && rhs){
 sparseVector::~sparseVector(){
 
 }
+
+//==========================================================================
 
 sparseMatrix::sparseMatrix():row(-1), col(-1), data(){}
 
@@ -139,6 +185,7 @@ sparseMatrix sparseMatrix::operator+(const sparseMatrix& other) const {
     sparseMatrix result(row, col); 
     for(int i = 1; i <= row; i++) for(auto& p : data[i-1]) for(auto& q : other.data[i-1]) if(p.first == q.first)
         result.set_value(i, p.first, p.second + q.second);
+    result.tidyUp();
     return result;
 }
 
@@ -148,6 +195,7 @@ sparseMatrix sparseMatrix::operator-(const sparseMatrix& other) const {
     sparseMatrix result(row, col); 
     for(int i = 1; i <= row; i++) for(auto& p : data[i-1]) for(auto& q : other.data[i-1]) if(p.first == q.first)
         result.set_value(i, p.first, p.second - q.second);
+    result.tidyUp();
     return result;
 }
 
@@ -169,6 +217,7 @@ sparseMatrix sparseMatrix::operator*(const sparseMatrix& other) const {
             }
         result.set_value(i, j, sum);
     }
+    result.tidyUp();
     return result;
 }
 
@@ -176,6 +225,7 @@ sparseMatrix sparseMatrix::operator*(double scalar) const {
     sparseMatrix result(row, col);
     for(int i = 1; i <= row; i++) for(auto& p : data[i-1])
         result.set_value(i, p.first, p.second * scalar);
+    result.tidyUp();
     return result;
 }
 
@@ -185,6 +235,7 @@ sparseMatrix sparseMatrix::operator/(double scalar) const {
     sparseMatrix result(row, col);
     for(int i = 1; i <= row; i++) for(auto& p : data[i-1])
         result.set_value(i, p.first, p.second / scalar);
+    result.tidyUp();
     return result;
 }
 

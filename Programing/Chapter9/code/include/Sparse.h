@@ -11,13 +11,18 @@ class sparseVector {
 public:
     int size;
     std::vector<std::pair<int, double>> data;
-
-    void set_value(int index, double value);
-
     sparseVector();
+    //生成长度为int的零向量
     sparseVector(int);
     sparseVector(const sparseVector& other);
+
+    void set_value(int index, double value);
+    void tidyUp();
     const double operator()(int) const;
+    sparseVector operator+(const sparseVector& other) const;
+    sparseVector operator-(const sparseVector& other) const;
+    sparseVector operator*(double scalar) const;
+    sparseVector operator/(double scalar) const;
     sparseVector& operator=(const sparseVector& other);
     sparseVector& operator=(sparseVector&& other);
     ~sparseVector();
@@ -31,6 +36,7 @@ public:
     std::vector<std::vector<std::pair<int, double>>> data;
 
     sparseMatrix();
+    //生成row行的零矩阵
     sparseMatrix(int row, int col);
     sparseMatrix(const sparseMatrix& other);
     sparseMatrix& operator=(const sparseMatrix& other);

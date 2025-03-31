@@ -12,8 +12,8 @@ public:
 
     // h = 1/n ， A.size() = n-1
     double h;
-    DynamicFunction& f,g;
-    //网格大小为1/int时对应的矩阵和右端项, 即n-1阶矩阵和右端项
+    DynamicFunction& f,g,exact;
+    //网格大小为1/int时对应的矩阵和右端项, 即int-1阶矩阵和右端项
     std::map<int, std::pair<sparseMatrix&, sparseVector&>> discretors;
     ConditionType conditionType;
 
@@ -26,13 +26,28 @@ public:
     using ICycleFunc = std::function<sparseVector(int, sparseMatrix&, sparseVector&, sparseVector&, int nu1, int nu2,
                                               std::string, std::string)>;
 
-    
+    //真解
+    sparseVector sol;
+    //初始猜测
+    sparseVector v_IG;
+
+    Multigrid(DynamicFunction& f, DynamicFunction& g, std::string B, DynamicFunction& exact):f(f), g(g), exact(exact){
+        if(B == "Dirichlet") conditionType = Dirichlet;
+        else if(B == "Neumann") conditionType = Neumann;
+        else throw std::invalid_argument("Invalid boundary condition");
+    };
+
+    virtual void generateSparseMatrix(int level) = 0;
+
+    sparseVector relaxation(int level, int nu1, sparseVector& v0);
+
+
     //level = n;
     //加权平均, v0.size() = n-1;
     sparseVector fullWeighting(int level, sparseVector& v0){
         sparseVector v(level/2-1);
         v.set_value(1, 1.0/4*(f(0,0) + 2*v0(1) + v0(2)));
-        v.set_value(level/2-1, 1.0/4*(v0(level-2) + 2*v0(level-1) + f(1,1));)
+        v.set_value(level/2-1, 1.0/4*(v0(level-2) + 2*v0(level-1) + f(1,1)));
         for(int j = 2; j <= level/2-1; j++) 
             v.set_value(j, 1.0/4*(v0(2*j-2) + 2*v0(2*j-1) + v0(2*j)));
         return v;
@@ -48,6 +63,7 @@ public:
     //level = n/2;
     //线性插值
     sparseVector linear(int level, sparseVector& v0){
+        //v0.size = level - 1;
         sparseVector v(level*2 - 1);
         for(int j = 1; j <= level*2 - 1; j++)
             if(j % 2 != 0) v.set_value(j, v0((j+1)/2));
@@ -65,45 +81,51 @@ public:
         return v;
     };
 
-    //第一次V-Cycle，level = finestGridSize-n
+
+    //第一次V-Cycle，level = n = finestGridSize
     sparseVector VCycle(int level, sparseVector& v0, int nu1, int nu2, std::string res, std::string inter){
-        IRestrictionFunc IRes;
-        IInterpolationFunc IInter;
-        
-        if(res == "fullWeighting") IRes = fullWeighting;
-        else if(res == "injection") IRes = injection;
-        else throw std::invalid_argument("Invalid restriction type");
+        //VC-1的实现
+        v0 = relaxation(level, nu1, v0);
 
-        if(inter == "linear") IInter = linear;
-        else if(inter == "quadratic") IInter = quadratic;
-        else throw std::invalid_argument("Invalid interpolation type");
-        
-        //接下来是VCylce的实现
-        sparseVector RHS(level/2-1);
+        if(level != 4){
+            IRestrictionFunc IRes;
+            IInterpolationFunc IInter;
+            
+            if(res == "fullWeighting") IRes = fullWeighting;
+            else if(res == "injection") IRes = injection;
+            else throw std::invalid_argument("Invalid restriction type");
 
+            if(inter == "linear") IInter = linear;
+            else if(inter == "quadratic") IInter = quadratic;
+            else throw std::invalid_argument("Invalid interpolation type");
+            
 
-
-
-
-
-
+            //接下来是VC-2的实现
+            //f^2h
+            sparseVector RHS(level/2-1) = IRes(level, discretors[level].second - discretors[level].first*v0);
+            sparseVector v_2h(level/2-1);
+            v_2h = VCycle(level/2, v_2h, nu1, nu2, res, inter);
+            v0 = v0 + IInter(level/2, v_2h);
+        }
+        v0 = relaxation(level, nu2, v0);
+        return v0;
     };
 
 
     sparseVector FMGCycle(int level, sparseVector& v);
 
-    //真解
-    sparseVector sol;
-public:
-
-    Multigrid(DynamicFunction& f, DynamicFunction& g, ConditionType B):f(f), g(g), conditionType(B){};
-
-    virtual void generateSparseMatrix(int level) = 0;
-
-    sparseVector relaxation(int level, int nu1, sparseVector& v0);
-
     //n是网格大小，R是限制类型，I是插值类型，C是循环类型，nu1和nu2是循环的迭代次数，eps是停止精度
     virtual void Solver(int n, std::string, std::string, std::string, int nu1, int nu2, double eps);
+
+    double errorAnalysis(){
+        spareseVector v(sol.size());
+        for(int i = 1; i <= v.size(); i++)
+            v.set_value(i, exact(i,i));
+        double err = 0;
+        for(int i = 1; i <= v.size(); i++)
+            err += pow(v(i)-sol(i), 2);
+        return sqrt(err);
+    };
 };
 
 template<int Dim>
@@ -129,17 +151,17 @@ void Multigrid<Dim>::Solver(int m,
     std::string restriction, 
     std::string interpolation, 
     std::string cycle, int nu1, int nu2, double eps){
-
-    ICycleFunc ICyc;
+    
+    generateSparseMatrix(m);
+    v_IG.resize(m-1);
+    v_IG.set_value(m-1, 0);
 
     if(cycle == "VCycle"){
-        ICyc = VCycle;
+        sol = ICycle(m, v_IG, nu1, nu2, restriction, interpolation);
     }
     else if(cycle == "FMGCycle"){
-        ICyc = FMGCycle;
+        sol = FMGCycle(m, v_IG, nu1, nu2, restriction, interpolation);
     }
-
-    relaxation(nu1, discretors[m].second, sol);
 
 };
 
@@ -164,7 +186,7 @@ public:
         b.set_value(1, f(0,0)-n*g(0,0)), b.set_value(n-1, f(n,n)-n*g(n,n));
     }
 
-    Multigrid(DynamicFunction& f, DynamicFunction& g, ConditionType B):Multigrid<1>(f, g, B){};
+    Multigrid(DynamicFunction& f, DynamicFunction& g, std::string B, DynamicFunction& exact):Multigrid<0>(f, g, B, exact){};
     //level = n； 生成n-1阶矩阵和右端项
     void generateSparseMatrix(int level) override;
     void Solver(int m,  std::string, std::string, std::string, int nu1, int nu2, double eps) override;

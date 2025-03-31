@@ -1,9 +1,9 @@
 #include "../include/Multigrid.h"
-#include <fstream>
-#include <string>
-#include <Strategy.h>
 #include "../include/exprtk.hpp"
 #include "json.hpp"
+
+#include <fstream>
+#include <string>
 
 int main() {
     std::ifstream ifs("../test/test.json");
@@ -22,11 +22,13 @@ int main() {
     double radius = data["radius"].get<double>();
     std::string center_Func = data["center_Func"].get<std::string>();
     std::string exact_solution = data["exactSolution"].get<std::string>();
-    
 
-
-
-
+    std::string InteratorFuncName = data["InteratorFuncName"].get<std::string>();
+    std::string RestrictionFuncName = data["RestrictionFuncName"].get<std::string>();
+    std::string InterpolationFuncName = data["InterpolationFuncName"].get<std::string>();
+    int solverTorlerance = data["solverTorlerance"].get<int>();
+    int nu1 = data["nu1"].get<int>();
+    int nu2 = data["nu2"].get<int>();
 
     // // 1D 求解器
     // Multigrid<1> mg1d(f, g, Dirichlet);
@@ -36,16 +38,6 @@ int main() {
     // Multigrid<2> mg2d(f, g, Neumann);
     // mg2d.Solve(5, injection, quadratic, FMG_Cycle, 3, 3, 1e-6);
 
-
-
-
-
-
-
-
-
-
-
     try {
         DynamicFunction func(funcName);
         DynamicFunction boundaryFunc(boundaryFuncName);
@@ -53,39 +45,16 @@ int main() {
         DynamicFunction boundaryFuncy(boundaryFuncNamey);
         DynamicFunction exact(exact_solution);
         if(boundaryStructure == "Regular") {
-            //
+            Multigrid<1> mg(func, boundaryFunc, boundaryCondition, exact);
+            mg.Solver(pixelNum, InterpolationFuncName, RestrictionFuncName, 
+                      InteratorFuncName, nu1, nu2, solverTorlerance);
+            std::cerr << mg.errorAnalysis() << std::endl;
         } else {
             //
         }
     } catch (const std::exception& e) {
-        std::cerr << "錯誤: " << e.what() << std::endl;
+        std::cerr << "Error: " << e.what() << std::endl;
     }
     system("python3 ../src/plot.py");
-    return 0;
-}
-
-// --------------------------
-// 5. 用户输入驱动示例
-// --------------------------
-int main() {
-    // 假设用户输入如下参数（可从配置文件或命令行读取）
-    std::string restriction_strategy = "half_weighting";
-    std::string interpolation_strategy = "quadratic";
-    std::string cycle_strategy = "f_cycle";
-
-    // 创建策略对象
-    auto restriction = StrategyFactory::createRestriction(restriction_strategy);
-    auto interpolation = StrategyFactory::createInterpolation(interpolation_strategy);
-    auto cycle = StrategyFactory::createCycle(cycle_strategy);
-
-    // 配置求解器
-    Solver solver;
-    solver.setRestriction(std::move(restriction));
-    solver.setInterpolation(std::move(interpolation));
-    solver.setCycle(std::move(cycle));
-
-    // 执行求解
-    solver.solve();
-
     return 0;
 }
