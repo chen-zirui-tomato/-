@@ -1,9 +1,9 @@
 #include "../include/Multigrid.h"
-#include "../include/exprtk.hpp"
 #include "json.hpp"
 
 #include <fstream>
 #include <string>
+#include <iostream>
 
 int main() {
     std::ifstream ifs("../test/test.json");
@@ -46,7 +46,7 @@ int main() {
         DynamicFunction exact(exact_solution);
         if(boundaryStructure == "Regular") {
             Multigrid<1> mg(func, boundaryFunc, boundaryCondition, exact);
-            mg.Solver(pixelNum, InterpolationFuncName, RestrictionFuncName, 
+            mg.Solver(pixelNum, RestrictionFuncName, InterpolationFuncName, 
                       InteratorFuncName, nu1, nu2, solverTorlerance);
             std::cerr << mg.errorAnalysis() << std::endl;
         } else {
@@ -55,6 +55,6 @@ int main() {
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
     }
-    system("python3 ../src/plot.py");
+    // system("python3 ../src/plot.py");
     return 0;
 }

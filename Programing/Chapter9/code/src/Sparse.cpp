@@ -1,11 +1,10 @@
 #include "../include/Sparse.h"
-#include <math.h>
+#include <cmath>
+#include <iostream>
 
 sparseVector::sparseVector():Size(-1), data(){}
 
-sparseVector::sparseVector(int size) : Size(size) {
-    data.resize(size);
-}
+sparseVector::sparseVector(int size) : Size(size) {}
 
 sparseVector::sparseVector(const sparseVector& other) {
     Size = other.Size;
@@ -18,35 +17,34 @@ int sparseVector::size() const{
 
 void sparseVector::resize(int size){
     Size = size;
-    data.resize(size);
 }
 
 void sparseVector::tidyUp(){
     for(auto it = data.begin(); it!= data.end(); )
-        if(it->second == 0) data.erase(it++);
+        if(it->second == 0) {
+            std::cerr<< "Debug - sparseVector::tidyUp called with index: " << it->first << std::endl;
+            it = data.erase(it);
+        }
         else ++it;
 }
 
 void sparseVector::set_value(int index, double value){
-    if(value != 0)
-        for(auto& p : data)
+    if(index <= 0 || index > Size){
+        std::cerr << "Debug - sparseVector::set_value called with index: " << index << ", value: " << value << std::endl;
+        throw std::out_of_range("Vector set value index out of range");
+    }
+    for(auto& p : data) {
         if(p.first == index){
             p.second = value;
             return;
         }
-        else
-            data.emplace_back(index, value);
-    else
-        for(auto it = data.begin(); it != data.end();) {
-            if(it -> first == index) it = data.erase(it);
-            else ++it;
-            return;
-        }
+    }
+    data.emplace_back(index, value);
 }
 
 const double sparseVector::operator()(int index) const{
     if(index <= 0 || index > Size)
-        throw std::out_of_range("Vector index out of range");
+        throw std::out_of_range("Vector() index out of range");
     for(auto& p : data) if(p.first == index)
         return p.second;
     return 0;
@@ -56,8 +54,14 @@ sparseVector sparseVector::operator+(const sparseVector& other) const {
     if(Size != other.Size)
         throw std::invalid_argument("Vector + size not match");
     sparseVector result(Size);
-    for(auto& p : data) for(auto& q : other.data) if(p.first == q.first)
-        result.set_value(p.first, p.second + q.second);
+    for(auto& p : data) {
+        result.set_value(p.first, p.second);
+        for(auto& q : other.data) 
+            if(p.first == q.first)
+            result.set_value(p.first, p.second + q.second);
+            else
+            result.set_value(q.first, q.second);
+    }
     result.tidyUp();
     return result;
 }
@@ -66,13 +70,19 @@ sparseVector sparseVector::operator-(const sparseVector& other) const {
     if(Size != other.Size)
         throw std::invalid_argument("Vector - size not match");
     sparseVector result(Size);
-    for(auto& p : data) for(auto& q : other.data) if(p.first == q.first)
-        result.set_value(p.first, p.second - q.second);
+    for(auto& p : data) {
+        result.set_value(p.first, p.second);
+        for(auto& q : other.data) 
+        if(p.first == q.first)
+            result.set_value(p.first, p.second - q.second);
+        else
+            result.set_value(q.first, -q.second);
+    }
     result.tidyUp();
     return result;
 }
 
-sparseVector sparseVector::operator*(double scalar) const {
+sparseVector sparseVector::operator*(double scalar){
     sparseVector result(Size);
     for(auto& p : data)
         result.set_value(p.first, p.second * scalar);
@@ -80,7 +90,7 @@ sparseVector sparseVector::operator*(double scalar) const {
     return result;
 }
 
-sparseVector sparseVector::operator/(double scalar) const {
+sparseVector sparseVector::operator/(double scalar){
     if(scalar == 0)
         throw std::invalid_argument("Vector / 0");
     sparseVector result(Size);
@@ -90,14 +100,14 @@ sparseVector sparseVector::operator/(double scalar) const {
     return result;
 }
 
-sparseVector & sparseVector::operator = (const sparseVector & rhs){
+sparseVector sparseVector::operator = (const sparseVector & rhs){
     if(this == &rhs) return *this;
     sparseVector copy(rhs);
     std::swap(*this, copy);
     return *this;
 }
 
-sparseVector & sparseVector::operator = (sparseVector && rhs){
+sparseVector sparseVector::operator = (sparseVector && rhs){
     std::swap(data, rhs.data);
     Size = rhs.Size;
     return *this;
@@ -121,14 +131,14 @@ sparseMatrix::sparseMatrix(const sparseMatrix& other) {
     data = other.data;
 }
 
-sparseMatrix & sparseMatrix::operator = (const sparseMatrix & rhs){
+sparseMatrix sparseMatrix::operator = (const sparseMatrix & rhs){
     if(this == &rhs) return *this;
     sparseMatrix copy(rhs);
     std::swap(*this, copy);
     return *this;
 }
 
-sparseMatrix & sparseMatrix::operator = (sparseMatrix && rhs){
+sparseMatrix sparseMatrix::operator = (sparseMatrix && rhs){
     std::swap(data, rhs.data);
     row = rhs.row;
     col = rhs.col;
@@ -158,21 +168,13 @@ void sparseMatrix::set_value(int row, int col, double value){
     //row-1是因为矩阵的行数从1开始，而数组的下标从0开始；
     //对于列的位置则不做改变，保持数学上的一致性。之后的操作同理。
     if(value != 0)
-        for(auto& p : data[row-1])
+    for(auto& p : data[row-1]){
         if(p.first == col){
             p.second = value;
             return;
         }
-        else{
-            data[row-1].emplace_back(col, value);
-            return;
-        }
-    else
-        for(auto it = data[row-1].begin(); it!= data[row-1].end();) {
-            if(it -> first == col) it = data[row-1].erase(it);
-            else ++it;
-            return;
-        }
+    }
+    data[row-1].emplace_back(col, value);
 }
 
 double& sparseMatrix::operator()(int i, int j) {
@@ -196,8 +198,15 @@ sparseMatrix sparseMatrix::operator+(const sparseMatrix& other) const {
     if(row != other.row || col != other.col)
         throw std::invalid_argument("Matrix + size not match");
     sparseMatrix result(row, col); 
-    for(int i = 1; i <= row; i++) for(auto& p : data[i-1]) for(auto& q : other.data[i-1]) if(p.first == q.first)
-        result.set_value(i, p.first, p.second + q.second);
+    for(int i = 1; i <= row; i++) 
+    for(auto& p : data[i-1]) {
+        result.set_value(i, p.first, p.second);
+        for(auto& q : other.data[i-1]) 
+        if(p.first == q.first)
+            result.set_value(i, p.first, p.second + q.second);
+        else
+            result.set_value(i, q.first, q.second);
+    }
     result.tidyUp();
     return result;
 }
@@ -206,8 +215,15 @@ sparseMatrix sparseMatrix::operator-(const sparseMatrix& other) const {
     if(row != other.row || col != other.col)
         throw std::invalid_argument("Matrix - size not match");
     sparseMatrix result(row, col); 
-    for(int i = 1; i <= row; i++) for(auto& p : data[i-1]) for(auto& q : other.data[i-1]) if(p.first == q.first)
-        result.set_value(i, p.first, p.second - q.second);
+    for(int i = 1; i <= row; i++) 
+    for(auto& p : data[i-1]) {
+        result.set_value(i, p.first, p.second);
+        for(auto& q : other.data[i-1]) 
+        if(p.first == q.first)
+            result.set_value(i, p.first, p.second - q.second);
+        else
+            result.set_value(i, q.first, -q.second);
+    }
     result.tidyUp();
     return result;
 }
@@ -234,7 +250,7 @@ sparseMatrix sparseMatrix::operator*(const sparseMatrix& other) const {
     return result;
 }
 
-sparseMatrix sparseMatrix::operator*(double scalar) const {
+sparseMatrix sparseMatrix::operator*(double scalar){
     sparseMatrix result(row, col);
     for(int i = 1; i <= row; i++) for(auto& p : data[i-1])
         result.set_value(i, p.first, p.second * scalar);
@@ -242,7 +258,7 @@ sparseMatrix sparseMatrix::operator*(double scalar) const {
     return result;
 }
 
-sparseMatrix sparseMatrix::operator/(double scalar) const {
+sparseMatrix sparseMatrix::operator/(double scalar){
     if(scalar == 0)
         throw std::invalid_argument("Divide by zero");
     sparseMatrix result(row, col);
@@ -260,7 +276,7 @@ void sparseMatrix::print() const {
     }
 }
 
-sparseVector sparseMatrix::operator*(const sparseVector& other) const {
+sparseVector sparseMatrix::operator*(const sparseVector& other){
     if(col != other.Size)
         throw std::invalid_argument("Matrix * size not match");
     sparseVector result(row);
@@ -272,69 +288,5 @@ sparseVector sparseMatrix::operator*(const sparseVector& other) const {
     }
     return result;
 }
-
-// sparseMatrix sparseMatrix::extractDiagonal() const {
-//     sparseMatrix diag(row, col);
-//     for(int i = 1; i <= row; i++) {
-//         for(auto& p : data[i-1]) {
-//             if(p.first == i) {  // 对角线元素
-//                 diag.set_value(i, i, p.second);
-//                 break;
-//             }
-//         }
-//     }
-//     return diag;
-// }
-
-// std::pair<sparseVector, int> sparseMatrix::weightedJacobi(
-//     const sparseVector& b, 
-//     const sparseVector& x0, 
-//     double omega, 
-//     int max_iter, 
-//     double tol) const {
-    
-//     // 参数检查
-//     if(row != col) throw std::invalid_argument("Matrix must be square");
-//     if(row != b.size) throw std::invalid_argument("Matrix and vector size mismatch");
-//     if(row != x0.size) throw std::invalid_argument("Initial guess size mismatch");
-//     if(omega <= 0 || omega >= 1) throw std::invalid_argument("Relaxation factor must be in (0,1)");
-    
-//     sparseMatrix D = extractDiagonal();
-//     sparseVector x = x0;
-//     sparseVector x_new(row);
-//     int iter = 0;
-//     double residual = 0;
-    
-//     // 预计算ωD^(-1)
-//     sparseMatrix omegaDinv(row, col);
-//     for(int i = 1; i <= row; i++) {
-//         double diag_val = D(i,i);
-//         if(diag_val == 0) throw std::runtime_error("Zero diagonal element detected");
-//         omegaDinv.set_value(i, i, omega / diag_val);
-//     }
-    
-//     // 迭代循环
-//     for(iter = 0; iter < max_iter; iter++) {
-//         // 计算残差 r = b - A*x
-//         sparseVector r = b - (*this)*x;
-//         residual = 0;
-//         for(int i = 1; i <= row; i++) {
-//             residual += r(i)*r(i);
-//         }
-//         residual = sqrt(residual);
-        
-//         if(residual < tol) break;
-        
-//         // 加权Jacobi迭代: x_new = x + ωD^(-1)(b - A*x)
-//         sparseVector correction = omegaDinv * r;
-//         for(int i = 1; i <= row; i++) {
-//             x_new.set_value(i, x(i) + correction(i));
-//         }
-        
-//         x = x_new;
-//     }
-    
-//     return {x, iter};
-// }
 
 

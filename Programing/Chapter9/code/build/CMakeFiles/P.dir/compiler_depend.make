@@ -7,7 +7,6 @@ CMakeFiles/P.dir/test/P.cpp.o: /home/chenzr/Lessen/Numerical_Analyse/Programing/
   /home/chenzr/Lessen/Numerical_Analyse/Programing/Chapter9/code/include/Function.h \
   /home/chenzr/Lessen/Numerical_Analyse/Programing/Chapter9/code/include/Multigrid.h \
   /home/chenzr/Lessen/Numerical_Analyse/Programing/Chapter9/code/include/Sparse.h \
-  /home/chenzr/Lessen/Numerical_Analyse/Programing/Chapter9/code/include/exprtk.hpp \
   /usr/include/alloca.h \
   /usr/include/asm-generic/errno-base.h \
   /usr/include/asm-generic/errno.h \

@@ -1,0 +1,25 @@
+# 基础编译配置
+CompileFlags:
+  Add: 
+    - -xc++
+    - -std=c++17
+    - -DDEBUG
+  CompilationDatabase: build/
+
+# 诊断配置
+Diagnostics:
+  ClangTidy:
+    Add: [modernize-*]
+    Remove: [modernize-use-trailing-return-type]
+  Suppress:
+    - "clang-diagnostic-unused-variable"
+
+# 索引配置
+Index:
+  Background: Skip
+
+# 文件匹配
+If:
+  PathMatch: .*\.(cpp|h|hpp)$
+
+# 注意：实际项目中需要根据具体情况调整头文件路径

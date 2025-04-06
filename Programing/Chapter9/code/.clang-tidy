@@ -1,0 +1,13 @@
+#  基础配置
+Checks: >
+  -*,
+  clang-diagnostic-*,   # 启用编译器诊断（如未初始化变量）
+  bugprone-*,           # 常见代码错误检查
+  readability-*,        # 可读性检查
+  modernize-*,          # 现代化代码建议
+  performance-*         # 性能优化建议
+
+# 排除特定检查项（按需添加）
+WarningsAsErrors: ''
+HeaderFilterRegex: '.*'  # 检查所有头文件
+FormatStyle: none         # 禁用自动格式化

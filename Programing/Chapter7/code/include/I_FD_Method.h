@@ -12,7 +12,7 @@ private:
     int count;
     DynamicFunction& centerFunc;
     Eigen::MatrixXd A_eigen_rebuild;
-    Eigen::VectorXd f_eigen_rebuild;
+    Eigen::VectorXd f_eigen_rebuild
     // 标记闭圆盘内部的点
     std::map<std::pair<int, int>, bool> mark_in;
     // 标记闭圆盘边界的点

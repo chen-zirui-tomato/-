@@ -90,7 +90,6 @@ CMakeFiles/NumericalAnalysisLib.dir/src/Sparse.cpp.o: /home/chenzr/Lessen/Numeri
   /usr/include/c++/13/iostream \
   /usr/include/c++/13/istream \
   /usr/include/c++/13/limits \
-  /usr/include/c++/13/math.h \
   /usr/include/c++/13/new \
   /usr/include/c++/13/ostream \
   /usr/include/c++/13/pstl/pstl_config.h \
@@ -355,9 +354,7 @@ CMakeFiles/NumericalAnalysisLib.dir/src/Sparse.cpp.o: /home/chenzr/Lessen/Numeri
 
 /usr/include/c++/13/bits/basic_string.h:
 
-/usr/include/time.h:
-
-/usr/include/c++/13/bits/memoryfwd.h:
+/usr/include/c++/13/bits/ostream_insert.h:
 
 /usr/include/wchar.h:
 
@@ -466,6 +463,10 @@ CMakeFiles/NumericalAnalysisLib.dir/src/Sparse.cpp.o: /home/chenzr/Lessen/Numeri
 /usr/include/c++/13/bits/localefwd.h:
 
 /usr/include/c++/13/bits/locale_facets.h:
+
+/usr/include/c++/13/bits/memoryfwd.h:
+
+/usr/include/time.h:
 
 /usr/include/x86_64-linux-gnu/bits/types.h:
 
@@ -588,10 +589,6 @@ CMakeFiles/NumericalAnalysisLib.dir/src/Sparse.cpp.o: /home/chenzr/Lessen/Numeri
 /usr/include/features-time64.h:
 
 /usr/include/c++/13/limits:
-
-/usr/include/c++/13/bits/ostream_insert.h:
-
-/usr/include/c++/13/math.h:
 
 /usr/include/c++/13/ext/alloc_traits.h:
 
