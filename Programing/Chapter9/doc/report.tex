@@ -94,264 +94,158 @@ $之外，包围了一圈边界点，即$
 
 在构造矩阵方程组时，只需要考虑内部的点，所以系数矩阵A是一个m阶方阵。
 
-\subsection*{代码结构}
-所有代码放在code文件夹中，头文件放在include文件夹中，源文件放在src文件夹中，build文件夹用于存放编译后的可执行文件，
-opt中存放结果图片，test文件夹用于存放测试用例。
-
+\subsection*{程序缺陷}
+算法在迭代五次后，残差和误差基本不变，多次检查后仍然无法确定问题所在。
 
 \subsection*{Problem $exp(y+sin(x))$}
-考虑函数\begin{align}
-    \left\{
-        \begin{array}{ll}
-            \Delta u(x,y) &= (\cos(x)\cos(x)-\sin(x)+1)\exp(y+\sin(x)) \quad (x,y)\in \Omega = (0,1) \times (0,1) \\
-            u(x,y) &= \exp(y+\sin(x)) \quad (x,y)\in \partial \Omega = \{(0,y) \cup (1,y) \cup (x,0) \cup (x,1) \mid y \in [0,1], x \in [0,1]\}
-        \end{array}
-    \right.
-\end{align}
+\subsubsection*{VCycle}
+对于规则边界，Dirichlet边界条件，fullWeighting,linear。
+\begin{enumerate}
+\item 网格数为32。
+    在第6次迭代时残差达到$10^{-6}$
+    Residual norm at level 32: 0.000262642
+    Residual norm at level 16: 4.34873e-05
+    Residual norm at level 8: 8.95084e-06
+    6 iteration, error = 1.01905
 
-在网格数为8,16,32,64的结果如下：
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.2\textwidth]{pic/RD8.png}
-    \includegraphics[width=0.2\textwidth]{pic/RD16.png}
-    \includegraphics[width=0.2\textwidth]{pic/RD32.png}
-    \includegraphics[width=0.2\textwidth]{pic/RD64.png}
-    \caption{$exp(y+sin(x))$，规则网格数为8,16,32,64，Dirichlet边界。}
-    \label{fig:RD}
-\end{figure}
-\begin{table}[H]
-    \centering
-    \begin{tabular}{c|cccc}
-               &   $L_2$   &  $L_1$   &  $L_{\infty}$  \\
-        
-        8  &0.0920 &0.2315 &0.0605  \\
-        
-        16 &0.0404 &0.1484 &0.0190  \\
-        
-        32 &0.0159 &0.0840 &0.0054  \\
+\item 网格数为64。
+    在第6次迭代时残差达到$10^{-5}$
+    Residual norm at level 64: 0.00178412
+    Residual norm at level 32: 0.000330479
+    Residual norm at level 16: 5.33846e-05
+    Residual norm at level 8: 1.07992e-05
+    6 iteration, error = 0.72165
 
-        64 &0.0059 &0.0446 &0.0014
-    \end{tabular} 
-\end{table}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.2\textwidth]{pic/ID8.png}
-    \includegraphics[width=0.2\textwidth]{pic/ID16.png}
-    \includegraphics[width=0.2\textwidth]{pic/ID32.png}
-    \includegraphics[width=0.2\textwidth]{pic/ID64.png}
-    \caption{$exp(y+sin(x))$，不规则网格数为8,16,32,64，Dirichlet边界。}
-    \label{fig:ID}
-\end{figure}
-\begin{table}[H]
-    \centering
-    \begin{tabular}{c|cccc}
-               &   $L_2$   &  $L_1$   &  $L_{\infty}$  \\
-        
-        8  &0.0581 &0.1197 &0.0575  \\
-        
-        16 &0.0279 &0.0872 &0.0188  \\
-        
-        32 &0.0108 &0.0478 &0.0053  \\
+\item 网格数为128。
+    在第6次迭代时残差达到$10^{-5}$
+    Residual norm at level 128: 0.011126
+    Residual norm at level 64: 0.00208497
+    Residual norm at level 32: 0.000374178
+    Residual norm at level 16: 5.89672e-05
+    Residual norm at level 8: 1.16673e-05
+    6 iteration, error = 0.51057
 
-        64 &0.0041 &0.0258 &0.0014
-    \end{tabular} 
-\end{table}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.2\textwidth]{pic/IN8.png}
-    \includegraphics[width=0.2\textwidth]{pic/IN16.png}
-    \includegraphics[width=0.2\textwidth]{pic/IN32.png}
-    \includegraphics[width=0.2\textwidth]{pic/IN64.png}
-    \caption{$exp(y+sin(x))$，不规则网格数为8,16,32,64，Neumann边界。}
-    \label{fig:IN}
-\end{figure}
-\begin{table}[H]
-    \centering
-    \begin{tabular}{c|cccc}
-               &   $L_2$   &  $L_1$   &  $L_{\infty}$  \\
-        
-        8  &0.0069 &0.0157 &0.0049  \\
-        
-        16 &0.0036 &0.0125 &0.0017  \\
-        
-        32 &0.0012 &0.0058 &0.0004  \\
+\item 网格数为256。
+    Residual norm at level 256: 0.0661172
+    Residual norm at level 128: 0.0125497
+    Residual norm at level 64: 0.00228404
+    Residual norm at level 32: 0.000398829
+    Residual norm at level 16: 6.16598e-05
+    Residual norm at level 8: 1.20221e-05
+    6 iteration, error = 0.361112
 
-        64 &0.0004 &0.0031 &0.0001
-    \end{tabular} 
-\end{table}
+\end{enumerate}
 
-%==========================================================================
-%==========================================================================
-\subsection*{自定义函数$sin(x*y)$}
-考虑函数\begin{align}
-    \left\{
-        \begin{array}{ll}
-            \Delta u(x,y) &= (x*x+y*y)*sin(x*y) \quad (x,y)\in \Omega = (0,1) \times (0,1) \\
-            u(x,y) &= sin(x*y) \quad (x,y)\in \partial \Omega = \{(0,y) \cup (1,y) \cup (x,0) \cup (x,1) \mid y \in [0,1], x \in [0,1]\}
-        \end{array}
-    \right.
-\end{align}
-在网格数为8,16,32,64的结果如下：
+规则边界，Dirichlet边界条件, fullWeighting, quadratic。
+\item 网格数为32。
+    在第6次迭代时残差达到$10^{-6}$
+    Residual norm at level 32: 0.000243564
+    Residual norm at level 16: 4.29247e-05
+    Residual norm at level 8: 8.17586e-06
+    6 iteration, error = 1.01905
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.2\textwidth]{pic2/RD8.png}
-    \includegraphics[width=0.2\textwidth]{pic2/RD16.png}
-    \includegraphics[width=0.2\textwidth]{pic2/RD32.png}
-    \includegraphics[width=0.2\textwidth]{pic2/RD64.png}
-    \caption{$exp(y+sin(x))$，规则网格数为8,16,32,64，Dirichlet边界。}
-    \label{fig:RD}
-\end{figure}
-\begin{table}[H]
-    \centering
-    \begin{tabular}{c|cccc}
-               &   $L_2$   &  $L_1$   &  $L_{\infty}$  \\
-        
-        8  &0.0081 &0.0169 &0.0078  \\
-        
-        16 &0.0037 &0.0112 &0.0025  \\
-        
-        32 &0.0015 &0.0064 &0.0007  \\
+\item 网格数为64。
+    在第6次迭代时残差达到$10^{-6}$
+    Residual norm at level 64: 0.00161502
+    Residual norm at level 32: 0.000321223
+    Residual norm at level 16: 5.24646e-05
+    Residual norm at level 8: 9.46208e-06
+    6 iteration, error = 0.721649
 
-        64 &0.0005 &0.0034 &0.0001
-    \end{tabular} 
-\end{table}
+\item 网格数为128。
+    在第6次迭代时残差达到$10^{-6}$
+    Residual norm at level 128: 0.00931856
+    Residual norm at level 64: 0.00193213
+    Residual norm at level 32: 0.000358479
+    Residual norm at level 16: 5.65874e-05
+    Residual norm at level 8: 9.95138e-06
+    6 iteration, error = 0.510569
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.2\textwidth]{pic2/ID8.png}
-    \includegraphics[width=0.2\textwidth]{pic2/ID16.png}
-    \includegraphics[width=0.2\textwidth]{pic2/ID32.png}
-    \includegraphics[width=0.2\textwidth]{pic2/ID64.png}
-    \caption{$exp(y+sin(x))$，不规则网格数为8,16,32,64，Dirichlet边界。}
-    \label{fig:ID}
-\end{figure}
-\begin{table}[H]
-    \centering
-    \begin{tabular}{c|cccc}
-               &   $L_2$   &  $L_1$   &  $L_{\infty}$  \\
-        
-        8  &0.0081 &0.0169 &0.0078  \\
-        
-        16 &0.0059 &0.0089 &0.0045  \\
-        
-        32 &0.0029 &0.0064 &0.0025  \\
+\item 网格数为256。
+    在第6次迭代时残差达到$10^{-5}$
+    Residual norm at level 256: 0.0488913
+    Residual norm at level 128: 0.0105387
+    Residual norm at level 64: 0.00206747
+    Residual norm at level 32: 0.000373161
+    Residual norm at level 16: 5.80517e-05
+    Residual norm at level 8: 1.01117e-05
+    6 iteration, error = 0.361111
 
-        64 &0.0004 &0.0002 &0.0001
-    \end{tabular} 
-\end{table}
+\end{enumerate}
+说明二次插值的精度更高。
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.2\textwidth]{pic2/IN8.png}
-    \includegraphics[width=0.2\textwidth]{pic2/IN16.png}
-    \includegraphics[width=0.2\textwidth]{pic2/IN32.png}
-    \includegraphics[width=0.2\textwidth]{pic2/IN64.png}
-    \caption{$exp(y+sin(x))$，不规则网格数为8,16,32,64，Neumann边界。}
-    \label{fig:IN}
-\end{figure}
-\begin{table}[H]
-    \centering
-    \begin{tabular}{c|cccc}
-               &   $L_2$   &  $L_1$   &  $L_{\infty}$  \\
-        
-        8  &0.0041 &0.0068 &0.0054  \\
-        
-        16 &0.0022 &0.0057 &0.0020  \\
-        
-        32 &0.0008 &0.0028 &0.0056  \\
+规则边界，Dirichlet边界条件, injection, linear。
+\begin{enumerate}
+\item 网格数为32。
+    在第6次迭代时残差达到$10^{-5}$
+    Residual norm at level 32: 0.00125484
+    Residual norm at level 16: 0.000225143
+    Residual norm at level 8: 4.71122e-05
+    6 iteration, error = 1.01905
+\item 网格数为64。
+    在第6次迭代时残差达到$10^{-5}$
+    Residual norm at level 64: 0.00827634
+    Residual norm at level 32: 0.00167691
+    Residual norm at level 16: 0.000276912
+    Residual norm at level 8: 5.52438e-05
+    6 iteration, error = 0.721652
+\item 网格数为128。
+    在第6次迭代时残差达到$10^{-5}$
+    Residual norm at level 128: 0.0500838
+    Residual norm at level 64: 0.01032
+    Residual norm at level 32: 0.00191325
+    Residual norm at level 16: 0.000303276
+    Residual norm at level 8: 5.87188e-05
+    6 iteration, error = 0.510574
+\item 网格数为256。
+    在第6次迭代时残差达到$10^{-5}$
+    Residual norm at level 256: 0.285242
+    Residual norm at level 128: 0.0599207
+    Residual norm at level 64: 0.0113986
+    Residual norm at level 32: 0.00202851
+    Residual norm at level 16: 0.000314789
+    Residual norm at level 8: 6.00298e-05
+    6 iteration, error = 0.361119
+\end{enumerate}
+说明fullweighting松弛的精度更高。
 
-        64 &0.0003 &0.0015 &0.0001
-    \end{tabular} 
-\end{table}
+规则边界，Dirichlet边界条件, injection, quadratic。
+\begin{enumerate}
+\item 网格数为32。
+    在第6次迭代时残差达到$10^{-5}$
+    Residual norm at level 32: 0.00109206
+    Residual norm at level 16: 0.000211448
+    Residual norm at level 8: 4.30871e-05
+    6 iteration, error = 1.01905
+\item 网格数为64。
+    在第6次迭代时残差达到$10^{-5}$
+    Residual norm at level 64: 0.00664948
+    Residual norm at level 32: 0.0014904
+    Residual norm at level 16: 0.000257301
+    Residual norm at level 8: 4.89599e-05
+    6 iteration, error = 0.721652
+\item 网格数为128。
+    在第6次迭代时残差达到$10^{-5}$
+    Residual norm at level 128: 0.0355607
+    Residual norm at level 64: 0.00829714
+    Residual norm at level 32: 0.0016712
+    Residual norm at level 16: 0.000275795
+    Residual norm at level 8: 5.10984e-05
+    6 iteration, error = 0.510573
+\item 网格数为256。
+    在第6次迭代时残差达到$10^{-5}$
+    Residual norm at level 256: 0.174971
+    Residual norm at level 128: 0.0422026
+    Residual norm at level 64: 0.00898611
+    Residual norm at level 32: 0.00173936
+    Residual norm at level 16: 0.000282247
+    Residual norm at level 8: 5.17974e-05
+    6 iteration, error = 0.361116
+\end{enumerate}
 
-%==========================================================
-%==========================================================
-\subsection*{自定义函数$exp(x*y)$}
-考虑函数\begin{align}
-    \left\{
-        \begin{array}{ll}
-            \Delta u(x,y) &= -(x*x+y*y)*exp(x*y) \quad (x,y)\in \Omega = (0,1) \times (0,1) \\
-            u(x,y) &= exp(x*y) \quad (x,y)\in \partial \Omega = \{(0,y) \cup (1,y) \cup (x,0) \cup (x,1) \mid y \in [0,1], x \in [0,1]\}
-        \end{array}
-    \right.
-\end{align}
-在网格数为8,16,32,64的结果如下：
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.2\textwidth]{pic3/RD8.png}
-    \includegraphics[width=0.2\textwidth]{pic3/RD16.png}
-    \includegraphics[width=0.2\textwidth]{pic3/RD32.png}
-    \includegraphics[width=0.2\textwidth]{pic3/RD64.png}
-    \caption{$exp(y+sin(x))$，规则网格数为8,16,32,64，Dirichlet边界。}
-    \label{fig:RD}
-\end{figure}
-\begin{table}[H]
-    \centering
-    \begin{tabular}{c|cccc}
-               &   $L_2$   &  $L_1$   &  $L_{\infty}$  \\
-        
-        8  &0.0387 &0.1004 &0.0242  \\
-        
-        16 &0.0170 &0.0645 &0.0079  \\
-        
-        32 &0.0067 &0.0365 &0.0022  \\
-
-        64 &0.0025 &0.0194 &0.0006
-    \end{tabular} 
-\end{table}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.2\textwidth]{pic3/ID8.png}
-    \includegraphics[width=0.2\textwidth]{pic3/ID16.png}
-    \includegraphics[width=0.2\textwidth]{pic3/ID32.png}
-    \includegraphics[width=0.2\textwidth]{pic3/ID64.png}
-    \caption{$exp(y+sin(x))$，不规则网格数为8,16,32,64，Dirichlet边界。}
-    \label{fig:ID}
-\end{figure}
-\begin{table}[H]
-    \centering
-    \begin{tabular}{c|cccc}
-               &   $L_2$   &  $L_1$   &  $L_{\infty}$  \\
-        
-        8  &0.0245 &0.0538 &0.0231  \\
-        
-        16 &0.0119 &0.0391 &0.0078  \\
-        
-        32 &0.0046 &0.0215 &0.0022  \\
-
-        64 &0.0017 &0.0116 &0.0006
-    \end{tabular} 
-\end{table}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.2\textwidth]{pic3/IN8.png}
-    \includegraphics[width=0.2\textwidth]{pic3/IN16.png}
-    \includegraphics[width=0.2\textwidth]{pic3/IN32.png}
-    \includegraphics[width=0.2\textwidth]{pic3/IN64.png}
-    \caption{$exp(y+sin(x))$，不规则网格数为8,16,32,64，Neumann边界。}
-    \label{fig:IN}
-\end{figure}
-\begin{table}[H]
-    \centering
-    \begin{tabular}{c|cccc}
-               &   $L_2$   &  $L_1$   &  $L_{\infty}$  \\
-        
-        8  &0.0099 &0.0188 &0.0125  \\
-        
-        16 &0.0050 &0.0140 &0.0045  \\
-        
-        32 &0.0019 &0.0074 &0.0013  \\
-
-        64 &0.0007 &0.0040 &0.0003
-    \end{tabular} 
-\end{table}
 
 \subsection*{误差分析}
 观察误差发现每次h增加一倍，误差减小一倍，说明格式是$O(h^2)$的。

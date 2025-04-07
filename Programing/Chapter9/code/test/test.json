@@ -1,21 +1,23 @@
 {
-    "funcName": "exp(y+sin(x))*(cos(x)*cos(x)-sin(x)+1)",
-    "boundaryFuncName": "exp(y+sin(x))",
-    "boundaryFuncNamex": "cos(x)*exp(y+sin(x))",
-    "boundaryFuncNamey": "exp(y+sin(x))",
-    "pixelNum": 32,
+    "Dim" : 1,
+    "funcName1": "-exp(x+sin(x))*(1+cos(x)*cos(x)+2*cos(x)-sin(x))",
+    "boundaryFuncName1": "exp(x+sin(x))*(1+cos(x))",
+
+
+    "funcName2": "exp(y+sin(x))*(cos(x)*cos(x)-sin(x)+1)",
+    "boundaryFuncName2": "exp(y+sin(x))*(1+cos(x))",
+    "boundaryFuncNamex2": "cos(x)*exp(y+sin(x))",
+    "boundaryFuncNamey2": "exp(y+sin(x))",
+    "pixelNum": 256,
     "boundaryCondition": "Dirichlet",
-    "boundaryStructure": "Regular",
-    "center": [0.5,0.5],
-    "radius": 0.2,
-    "center_Func": "exp(y+sin(x))*((x-0.5)/0.2*cos(x)+(y-0.5)/0.2)",
     "exactSolution" : "exp(y+sin(x))",
 
     "InteratorFuncName":"VCycle",
-    "RestrictionFuncName":"fullWeighting",
-    "InterpolationFuncName":"linear",
-    "solverTorlerance":1e-6,
+    "RestrictionFuncName":"injection",
+    "InterpolationFuncName":"quadratic",
+    "solverTorlerance":1e-3,
     "nu1":10,
-    "nu2":10
+    "nu2":10,
+    "maxIter":5
 
 }
