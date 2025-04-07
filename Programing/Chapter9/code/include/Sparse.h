@@ -51,7 +51,7 @@ public:
     sparseMatrix();
     
     // Convert to Eigen dense matrix
-    Eigen::MatrixXd toDense() const {
+    [[nodiscard]] Eigen::MatrixXd toDense() const {
         Eigen::MatrixXd dense(row, col);
         dense.setZero();
         for (int i = 0; i < row; ++i) {
@@ -74,6 +74,10 @@ public:
     double operator()(int i, int j) const;
 
     [[nodiscard]] sparseMatrix Triverse() const;
+    //获得D
+    [[nodiscard]] sparseMatrix Diagonal() const;
+    //获得D^{-1}
+    [[nodiscard]] sparseMatrix InverseDiagonal() const;
     //消除0元
     void tidyUp();
     [[nodiscard]] int size() const;

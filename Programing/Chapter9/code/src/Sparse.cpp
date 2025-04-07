@@ -56,8 +56,10 @@ void sparseVector::set_value(int index, double value){
 }
 
 const double sparseVector::operator()(int index) const{
-    if(index <= 0 || index > Size)
+    if(index <= 0 || index > Size){
+        std::cerr << "this size = " << Size << " index = " << index << std::endl;
         throw std::out_of_range("Vector() index out of range");
+    }
     for(auto& p : data) if(p.first == index)
         return p.second;
     return 0;
@@ -182,6 +184,24 @@ sparseMatrix sparseMatrix::Triverse() const {
     return result;
 }
 
+sparseMatrix sparseMatrix::Diagonal() const {
+    sparseMatrix result(row, col);
+    for(int i = 1; i <= row; i++) {
+        result.set_value(i, i, data[i-1][i].second);
+    }
+    return result;
+}
+
+sparseMatrix sparseMatrix::InverseDiagonal() const {
+    sparseMatrix result(row, col);
+    for(int i = 1; i <= row; i++) {
+        if(data[i-1][i].second == 0) 
+            throw std::invalid_argument("Matrix is singular");
+        result.set_value(i, i, 1.0/data[i-1][i].second);
+    }
+    return result;
+}
+
 int sparseMatrix::size() const {
     return row;
 }
@@ -250,9 +270,10 @@ sparseMatrix sparseMatrix::operator+(const sparseMatrix& other) const {
 }
 
 sparseMatrix sparseMatrix::operator-(const sparseMatrix& other) const {
-    if(row != other.row || col != other.col)
+    if(row != other.row || col != other.col){
+        std::cerr << "this size: " << row << " " << col << " other size: " << other.row << " " << other.col <<std::endl;
         throw std::invalid_argument("Matrix - size not match");
-    
+    }
     sparseMatrix result(row, col);
     for(int i = 1; i <= row; i++) {
         std::map<int, double> row_result;
@@ -321,8 +342,10 @@ void sparseMatrix::print() const {
 }
 
 sparseVector sparseMatrix::operator*(const sparseVector& other) const {
-    if(col != other.Size)
-        throw std::invalid_argument("Matrix * size not match");
+    if(col != other.Size){
+        std::cerr << "this size: " << col << " other size: " << other.Size <<std::endl;
+        throw std::invalid_argument("Matrix * vector size not match");
+    }
     
     std::map<int, double> vecMap;
     for(const auto& p : other.data) {

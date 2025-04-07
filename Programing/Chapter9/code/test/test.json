@@ -8,16 +8,16 @@
     "boundaryFuncName2": "exp(y+sin(x))*(1+cos(x))",
     "boundaryFuncNamex2": "cos(x)*exp(y+sin(x))",
     "boundaryFuncNamey2": "exp(y+sin(x))",
-    "pixelNum": 256,
+    "pixelNum": 128,
     "boundaryCondition": "Dirichlet",
     "exactSolution" : "exp(y+sin(x))",
 
-    "InteratorFuncName":"VCycle",
-    "RestrictionFuncName":"injection",
-    "InterpolationFuncName":"quadratic",
+    "InteratorFuncName":"FMGCycle",
+    "RestrictionFuncName":"fullWeighting",
+    "InterpolationFuncName":"linear",
     "solverTorlerance":1e-3,
-    "nu1":10,
-    "nu2":10,
-    "maxIter":5
+    "nu1":3,
+    "nu2":2,
+    "maxIter":10
 
 }

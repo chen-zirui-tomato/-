@@ -3,3 +3,46 @@
 然后进Vcylce()
 然后relatxion();
 然后限制IRes();
+
+
+template<>
+sparseVector Multigrid<2>::relaxation(int level, int nu1, sparseVector v0, sparseVector RHS){
+    /* 二维松弛方法
+     * 参数: level - 当前网格层数
+     *       nu1 - 松弛迭代次数
+     *       v0 - 初始解向量
+     *       RHS - 右端项
+     * 返回: 松弛后的解向量
+     * 使用加权Jacobi方法进行松弛
+     */
+    
+    h = 1.0/level;
+    int m = level;
+    int totalPoints = m*m;
+    
+    // 动态调整松弛权重
+    double w = (level <= 8) ? 0.8 : 2.0/3;  // 细网格使用更强松弛
+    
+    if(discretors[level].first.size() != totalPoints)
+        throw std::invalid_argument("Matrix size not match with level");
+    
+    sparseMatrix& A = discretors[level].first;
+    sparseMatrix I(totalPoints, totalPoints);
+    
+    // 构造单位矩阵
+    for(int i = 1; i <= totalPoints; i++)
+        I.set_value(i, i, 1.0);
+    
+    // 构造Tw = I - w*D^-1*A, 其中D是A的对角部分
+    sparseMatrix Tw = I - (A*(w/4.0*h*h)); // 4.0是五点差分格式的对角元
+    
+    // 构造current = w*D^-1*RHS
+    sparseVector current = RHS*(w/4.0*h*h);
+    
+    // 执行nu1次松弛迭代
+    for(int iter = 0; iter < nu1; iter++) {
+        v0 = (Tw*v0) + current;
+    }
+    
+    return v0;
+}

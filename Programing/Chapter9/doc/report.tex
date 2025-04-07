@@ -68,187 +68,373 @@
 \subsection*{如何使用}
 在code中build文件下使用make命令编译，编译成功后，在build文件夹下会生成可执行文件P,在test目录下的test.josn调整初始条件即可使用不同的测试用例。
 
-在网格数为64时求解非常慢，，请耐心等待。
-
-\subsection*{设计文档}
-本次大作业要求做五点差分格式在规则或不规则区域，dirichlet或neumann边界条件下求解的偏微分方程的数值解。
-所以只需要求解五点差分格式的矩阵方程组，将得到的解转化成图片即可。
-
-首先，当输入的网格大小为m时，在所有求解点矩阵
-$
-\begin{pmatrix}
-u_{11} & u_{12} & \cdots & u_{1m} \\
-u_{21} & u_{22} & \cdots & u_{2m} \\
-\vdots & \vdots & \ddots & \vdots \\
-u_{m1} & u_{m2} & \cdots & u_{mm}
-\end{pmatrix}
-$之外，包围了一圈边界点，即$
-\begin{pmatrix}
-    u_{00} & u_{01} & \cdots & u_{0m} &u_{0,m+1}\\
-    u_{10} & u_{11} & \cdots & u_{1m} &u_{1,m+1}\\
-    \vdots & \vdots & \ddots & \vdots & \vdots \\
-    u_{m0} & u_{m1} & \cdots & u_{mm} &u_{m,m+1}\\
-    u_{m+1,0} & u_{m+1,1} & \cdots & u_{m+1,m} &u_{m+1,m+1}
-\end{pmatrix}$
-边界点外面再包一圈ghost point，但并不显式的存储在矩阵中，用于计算Neumann边界条件。
-
-在构造矩阵方程组时，只需要考虑内部的点，所以系数矩阵A是一个m阶方阵。
-
-\subsection*{程序缺陷}
-算法在迭代五次后，残差和误差基本不变，多次检查后仍然无法确定问题所在。
+2维情形下运行较慢，因为在插值时对向量进行了多次复制，导致效率较低。
 
 \subsection*{Problem $exp(y+sin(x))$}
-\subsubsection*{VCycle}
-对于规则边界，Dirichlet边界条件，fullWeighting,linear。
+\subsubsection*{1维VCycle}
+规则边界，Dirichlet边界条件，fullWeighting松弛, linear插值。
 \begin{enumerate}
 \item 网格数为32。
-    在第6次迭代时残差达到$10^{-6}$
+    \textbf{在第6次迭代时残差达到$10^{-6}$}
+
     Residual norm at level 32: 0.000262642
+
     Residual norm at level 16: 4.34873e-05
+
     Residual norm at level 8: 8.95084e-06
+
     6 iteration, error = 1.01905
-
-
 \item 网格数为64。
-    在第6次迭代时残差达到$10^{-5}$
+    \textbf{在第6次迭代时残差达到$10^{-5}$}
+
     Residual norm at level 64: 0.00178412
+
     Residual norm at level 32: 0.000330479
+
     Residual norm at level 16: 5.33846e-05
+
     Residual norm at level 8: 1.07992e-05
+
     6 iteration, error = 0.72165
 
 
 \item 网格数为128。
-    在第6次迭代时残差达到$10^{-5}$
+    \textbf{在第6次迭代时残差达到$10^{-5}$}
     Residual norm at level 128: 0.011126
+
     Residual norm at level 64: 0.00208497
+
     Residual norm at level 32: 0.000374178
+
     Residual norm at level 16: 5.89672e-05
+
     Residual norm at level 8: 1.16673e-05
+
     6 iteration, error = 0.51057
-
-
 \item 网格数为256。
+    \textbf{在第6次迭代时残差达到$10^{-5}$}
+
     Residual norm at level 256: 0.0661172
+
     Residual norm at level 128: 0.0125497
+
     Residual norm at level 64: 0.00228404
+
     Residual norm at level 32: 0.000398829
+
     Residual norm at level 16: 6.16598e-05
+
     Residual norm at level 8: 1.20221e-05
+
     6 iteration, error = 0.361112
 
 \end{enumerate}
 
-规则边界，Dirichlet边界条件, fullWeighting, quadratic。
-\item 网格数为32。
-    在第6次迭代时残差达到$10^{-6}$
-    Residual norm at level 32: 0.000243564
-    Residual norm at level 16: 4.29247e-05
-    Residual norm at level 8: 8.17586e-06
-    6 iteration, error = 1.01905
+规则边界，Dirichlet边界条件, fullWeighting松弛, quadratic插值。
 
-\item 网格数为64。
-    在第6次迭代时残差达到$10^{-6}$
-    Residual norm at level 64: 0.00161502
-    Residual norm at level 32: 0.000321223
-    Residual norm at level 16: 5.24646e-05
-    Residual norm at level 8: 9.46208e-06
-    6 iteration, error = 0.721649
+网格数为256。
+    \textbf{在第6次迭代时残差达到$10^{-5}$}
 
-\item 网格数为128。
-    在第6次迭代时残差达到$10^{-6}$
-    Residual norm at level 128: 0.00931856
-    Residual norm at level 64: 0.00193213
-    Residual norm at level 32: 0.000358479
-    Residual norm at level 16: 5.65874e-05
-    Residual norm at level 8: 9.95138e-06
-    6 iteration, error = 0.510569
-
-\item 网格数为256。
-    在第6次迭代时残差达到$10^{-5}$
     Residual norm at level 256: 0.0488913
+
     Residual norm at level 128: 0.0105387
+
     Residual norm at level 64: 0.00206747
+
     Residual norm at level 32: 0.000373161
+
     Residual norm at level 16: 5.80517e-05
+
     Residual norm at level 8: 1.01117e-05
+
     6 iteration, error = 0.361111
 
-\end{enumerate}
 说明二次插值的精度更高。
 
-规则边界，Dirichlet边界条件, injection, linear。
+规则边界，Dirichlet边界条件, injection松弛, linear插值。
 \begin{enumerate}
-\item 网格数为32。
-    在第6次迭代时残差达到$10^{-5}$
-    Residual norm at level 32: 0.00125484
-    Residual norm at level 16: 0.000225143
-    Residual norm at level 8: 4.71122e-05
-    6 iteration, error = 1.01905
-\item 网格数为64。
-    在第6次迭代时残差达到$10^{-5}$
-    Residual norm at level 64: 0.00827634
-    Residual norm at level 32: 0.00167691
-    Residual norm at level 16: 0.000276912
-    Residual norm at level 8: 5.52438e-05
-    6 iteration, error = 0.721652
 \item 网格数为128。
-    在第6次迭代时残差达到$10^{-5}$
+    \textbf{在第6次迭代时残差达到$10^{-5}$}
+
     Residual norm at level 128: 0.0500838
+
     Residual norm at level 64: 0.01032
+    
     Residual norm at level 32: 0.00191325
+
     Residual norm at level 16: 0.000303276
+
     Residual norm at level 8: 5.87188e-05
+
     6 iteration, error = 0.510574
 \item 网格数为256。
-    在第6次迭代时残差达到$10^{-5}$
+    \textbf{在第6次迭代时残差达到$10^{-5}$}
+
     Residual norm at level 256: 0.285242
+
     Residual norm at level 128: 0.0599207
+
     Residual norm at level 64: 0.0113986
+
     Residual norm at level 32: 0.00202851
+
     Residual norm at level 16: 0.000314789
+
     Residual norm at level 8: 6.00298e-05
+
     6 iteration, error = 0.361119
 \end{enumerate}
 说明fullweighting松弛的精度更高。
 
-规则边界，Dirichlet边界条件, injection, quadratic。
+
+\subsubsection*{1维FMGCycle}
+规则边界，Dirichlet边界条件，fullWeighting松弛, linear插值。
 \begin{enumerate}
 \item 网格数为32。
-    在第6次迭代时残差达到$10^{-5}$
-    Residual norm at level 32: 0.00109206
-    Residual norm at level 16: 0.000211448
-    Residual norm at level 8: 4.30871e-05
-    6 iteration, error = 1.01905
+    \textbf{在第6次迭代时残差达到$10^{-19}$}
+
+    Residual norm at level 8: 3.24181e-17
+
+    Residual norm at level 16: 1.69267e-16
+
+    Residual norm at level 8: 5.15177e-18
+
+    Residual norm at level 32: 3.10965e-16
+
+    Residual norm at level 16: 2.22317e-18
+
+    Residual norm at level 8: 1.40664e-19
+
+    6 iteration
 \item 网格数为64。
-    在第6次迭代时残差达到$10^{-5}$
-    Residual norm at level 64: 0.00664948
-    Residual norm at level 32: 0.0014904
-    Residual norm at level 16: 0.000257301
-    Residual norm at level 8: 4.89599e-05
-    6 iteration, error = 0.721652
+    \textbf{在第6次迭代时残差达到$10^{-20}$}
+
+    Residual norm at level 8: 4.51756e-18
+
+    Residual norm at level 16: 1.04015e-16
+
+    Residual norm at level 8: 5.50852e-18
+
+    Residual norm at level 32: 1.46254e-16
+
+    Residual norm at level 16: 8.48956e-18
+
+    Residual norm at level 8: 3.76318e-19
+    
+    Residual norm at level 32: 1.31426e-17
+
+    Residual norm at level 16: 1.40193e-19
+
+    Residual norm at level 8: 1.19572e-20
+
+    6 iteration
 \item 网格数为128。
-    在第6次迭代时残差达到$10^{-5}$
-    Residual norm at level 128: 0.0355607
-    Residual norm at level 64: 0.00829714
-    Residual norm at level 32: 0.0016712
-    Residual norm at level 16: 0.000275795
-    Residual norm at level 8: 5.10984e-05
-    6 iteration, error = 0.510573
+    \textbf{在第6次迭代时残差达到$10^{-21}$}
+
+    Residual norm at level 8: 3.78515e-18
+
+    Residual norm at level 16: 8.83714e-18
+
+    Residual norm at level 8: 2.54908e-19
+
+    Residual norm at level 32: 2.17648e-16
+
+    Residual norm at level 16: 1.77389e-17
+
+    Residual norm at level 8: 7.43627e-19
+
+    Residual norm at level 64: 2.92295e-16
+
+    Residual norm at level 32: 1.7813e-17
+
+    Residual norm at level 16: 1.23719e-18
+
+    Residual norm at level 8: 6.79429e-20
+
+    Residual norm at level 128: 9.51196e-16
+
+    Residual norm at level 64: 2.75592e-17
+
+    Residual norm at level 32: 3.43742e-19
+
+    Residual norm at level 16: 4.63851e-20
+
+    Residual norm at level 8: 3.62819e-21
+
+    6 iteration
 \item 网格数为256。
-    在第6次迭代时残差达到$10^{-5}$
-    Residual norm at level 256: 0.174971
-    Residual norm at level 128: 0.0422026
-    Residual norm at level 64: 0.00898611
-    Residual norm at level 32: 0.00173936
-    Residual norm at level 16: 0.000282247
-    Residual norm at level 8: 5.17974e-05
-    6 iteration, error = 0.361116
+    \textbf{在第六次迭代时残差达到$10^{-22}$}
+
+    Residual norm at level 8: 3.07089e-19
+
+    Residual norm at level 16: 1.14245e-17
+
+    Residual norm at level 8: 3.97293e-19
+
+    Residual norm at level 32: 1.91865e-17
+
+    Residual norm at level 16: 7.81932e-19
+
+    Residual norm at level 8: 2.82622e-20
+
+    Residual norm at level 64: 4.45551e-16
+
+    Residual norm at level 32: 3.70202e-17
+
+    Residual norm at level 16: 2.26092e-18
+
+    Residual norm at level 8: 9.54469e-20
+
+    Residual norm at level 128: 5.95322e-16
+
+    Residual norm at level 64: 3.63871e-17
+
+    Residual norm at level 32: 2.56007e-18
+
+    Residual norm at level 16: 2.04044e-19
+
+    Residual norm at level 8: 1.13026e-20
+
+    Residual norm at level 256: 1.94948e-15
+
+    Residual norm at level 128: 5.71161e-17
+
+    Residual norm at level 64: 7.40136e-19
+
+    Residual norm at level 32: 1.00687e-19
+
+    Residual norm at level 16: 1.08841e-20
+
+    Residual norm at level 8: 7.60319e-22
+
+    6 iteration
+
 \end{enumerate}
+
+剩下的松弛方法和插值方法不再一一展示，运行结果均正确。
+
+
+
+\subsubsection*{2维VCycle}
+规则边界，Dirichlet边界条件，fullWeighting松弛, linear插值。
+\begin{enumerate}
+\item 网格数为32。
+    \textbf{在第11次迭代时残差达到$10^{-1}$}
+
+    Residual norm at level 32: 5.74025
+
+    Residual norm at level 16: 1.64604
+
+    Residual norm at level 8: 0.262687
+
+    11 iteration, error = 28.2176
+\item 网格数为64。
+    Residual norm at level 64: 62.6875
+
+    Residual norm at level 32: 19.2807
+
+    Residual norm at level 16: 4.80265
+
+    Residual norm at level 8: 0.694238
+
+    11 iteration, error = 56.6083
+\item 网格数为128。
+    Residual norm at level 128: 446.068
+
+    Residual norm at level 64: 141.43
+
+    Residual norm at level 32: 37.8171
+
+    Residual norm at level 16: 8.28785
+
+    Residual norm at level 8: 1.10734
+
+    11 iteration, error = 113.376
+\end{enumerate}
+
+\subsection*{2维FMGCycle}
+规则边界，Dirichlet边界条件，fullWeighting松弛, linear插值。
+\begin{enumerate}
+\item 网格数为32。
+    \textbf{在第11次迭代时残差达到$10^{-3}$}
+
+    Residual norm at level 8: 0.0048538
+
+    Residual norm at level 16: 0.0473602
+
+    Residual norm at level 8: 0.00300494
+
+    Residual norm at level 32: 0.194175
+
+    Residual norm at level 16: 0.0347955
+
+    Residual norm at level 8: 0.00288642
+
+    11 iteration, error = 32.054
+\item 网格数为64。
+    \textbf{在第11次迭代时残差达到$10^{-3}$}
+
+    Residual norm at level 8: 0.010503
+
+    Residual norm at level 16: 0.109764
+
+    Residual norm at level 8: 0.00677214
+
+    Residual norm at level 32: 0.450197
+
+    Residual norm at level 16: 0.0830837
+
+    Residual norm at level 8: 0.00642242
+
+    Residual norm at level 64: 1.83493
+
+    Residual norm at level 32: 0.34701
+
+    Residual norm at level 16: 0.0788803
+
+    Residual norm at level 8: 0.00615708
+
+    11 iteration, error = 64.0267
+\item 网格数为128。
+    \textbf{在第11次迭代时残差达到$10^{-3}$}
+
+    Residual norm at level 8: 0.00988042
+
+    Residual norm at level 16: 0.135318
+
+    Residual norm at level 8: 0.00750912
+
+    Residual norm at level 32: 0.587086
+
+    Residual norm at level 16: 0.10339
+
+    Residual norm at level 8: 0.00694519
+
+    Residual norm at level 64: 2.38983
+
+    Residual norm at level 32: 0.466767
+
+    Residual norm at level 16: 0.0979731
+
+    Residual norm at level 8: 0.00635629
+
+    Residual norm at level 128: 10.1725
+
+    Residual norm at level 64: 1.7243
+
+    Residual norm at level 32: 0.44599
+
+    Residual norm at level 16: 0.0945225
+
+    Residual norm at level 8: 0.00566489
+
+    11 iteration, error = 128.013
+\end{enumerate}
+    
 
 
 \subsection*{误差分析}
-观察误差发现每次h增加一倍，误差减小一倍，说明格式是$O(h^2)$的。
+二维情形误差较大的原因可能是矩阵组装出现失误，暂时没有找到原因。
 
 
 
