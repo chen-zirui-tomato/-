@@ -65,6 +65,7 @@ CMAKE_BINARY_DIR = /home/chenzr/Lessen/Numerical_Analyse/Programing/Chapter9/cod
 # The main recursive "all" target.
 all: CMakeFiles/NumericalAnalysisLib.dir/all
 all: CMakeFiles/P.dir/all
+all: CMakeFiles/RelaxationTest.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -74,6 +75,7 @@ preinstall:
 # The main recursive "clean" target.
 clean: CMakeFiles/NumericalAnalysisLib.dir/clean
 clean: CMakeFiles/P.dir/clean
+clean: CMakeFiles/RelaxationTest.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -127,6 +129,32 @@ P : CMakeFiles/P.dir/rule
 CMakeFiles/P.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/P.dir/build.make CMakeFiles/P.dir/clean
 .PHONY : CMakeFiles/P.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/RelaxationTest.dir
+
+# All Build rule for target.
+CMakeFiles/RelaxationTest.dir/all: CMakeFiles/NumericalAnalysisLib.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RelaxationTest.dir/build.make CMakeFiles/RelaxationTest.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RelaxationTest.dir/build.make CMakeFiles/RelaxationTest.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/chenzr/Lessen/Numerical_Analyse/Programing/Chapter9/code/build/CMakeFiles --progress-num=5,6 "Built target RelaxationTest"
+.PHONY : CMakeFiles/RelaxationTest.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/RelaxationTest.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/chenzr/Lessen/Numerical_Analyse/Programing/Chapter9/code/build/CMakeFiles 4
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/RelaxationTest.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/chenzr/Lessen/Numerical_Analyse/Programing/Chapter9/code/build/CMakeFiles 0
+.PHONY : CMakeFiles/RelaxationTest.dir/rule
+
+# Convenience name for target.
+RelaxationTest: CMakeFiles/RelaxationTest.dir/rule
+.PHONY : RelaxationTest
+
+# clean rule for target.
+CMakeFiles/RelaxationTest.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RelaxationTest.dir/build.make CMakeFiles/RelaxationTest.dir/clean
+.PHONY : CMakeFiles/RelaxationTest.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

@@ -15,7 +15,7 @@ int main() {
     std::string InteratorFuncName = data["InteratorFuncName"].get<std::string>();
     std::string RestrictionFuncName = data["RestrictionFuncName"].get<std::string>();
     std::string InterpolationFuncName = data["InterpolationFuncName"].get<std::string>();
-    int solverTorlerance = data["solverTorlerance"].get<int>();
+    double solverTorlerance = data["solverTorlerance"].get<double>();
     int nu1 = data["nu1"].get<int>();
     int nu2 = data["nu2"].get<int>();
     int maxIter = data["maxIter"].get<int>();

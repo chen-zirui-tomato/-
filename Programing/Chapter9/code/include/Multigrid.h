@@ -41,7 +41,7 @@ public:
 
     virtual void generateSparseMatrix(int level) = 0;
 
-    sparseVector relaxation(int level, int nu1, sparseVector v0, sparseVector RHS);
+    sparseVector relaxation(int level, int nu1, sparseVector &v0, sparseVector RHS);
 
 
     //level = n;
@@ -97,10 +97,10 @@ public:
 
 
     //第一次V-Cycle，level = n = finestGridSize
-    sparseVector VCycle(int level, sparseVector vh, sparseVector &RHS_level, int nu1, int nu2, IRestrictionFunc IRes, IInterpolationFunc IInter){
+    sparseVector VCycle(int level, sparseVector &vh, sparseVector &RHS_level, int nu1, int nu2, IRestrictionFunc IRes, IInterpolationFunc IInter){
         //VC-1的实现
         generateSparseMatrix(level);
-        vh = relaxation(level, nu1, vh, RHS_level);
+        relaxation(level, nu1, vh, RHS_level);
         //接下来是VC-2的实现
         //f^2hu
         if(level != 4){
@@ -109,9 +109,9 @@ public:
             std::cerr << "Residual norm at level " << level << ": " << residual.norm() << std::endl;
             RHS = IRes(level, residual);
             sparseVector v_2h(level/2-1);
-            v_2h = VCycle(level/2, v_2h, RHS, nu1, nu2, IRes, IInter);
+            VCycle(level/2, v_2h, RHS, nu1, nu2, IRes, IInter);
             vh = vh + IInter(level/2, v_2h);
-            vh = relaxation(level, nu2, vh, RHS_level);
+            relaxation(level, nu2, vh, RHS_level);
         }
         
         else {
@@ -148,8 +148,9 @@ public:
             vh = IInter(level/2, v2h);
         }
         //FMG-3
-        vh = VCycle(level, vh, RHS, nu1, nu2, IRes, IInter);
-        RHS = (RHS - (discretors[level].first*vh));
+        VCycle(level, vh, RHS, nu1, nu2, IRes, IInter);
+        // RHS = RHS - (RHS - (discretors[level].first*vh));
+        RHS = discretors[level].first*vh;
         return vh;
     };
 
@@ -211,40 +212,117 @@ public:
         double err = 0;
         for(int i = 1; i <= v.size(); i++)
             err += pow(this->sol(i) - v(i), 2);
+        // sol.print();
+        // std::cerr << "Exact solution: " << std::endl;
+        // v.print() ;
         return sqrt(err);
     };
 };
 
 template<int Dim>
-sparseVector Multigrid<Dim>::relaxation(int level,int nu1, sparseVector v0, sparseVector RHS){
+sparseVector Multigrid<Dim>::relaxation(int level,int nu1, sparseVector &v0, sparseVector RHS){
     h = 1.0/level;
     // 根据网格层数动态调整松弛权重
-    double w = (level <= 8) ? 0.8 : 2.0/3;
+    // double w = (level <= 8) ? 0.8 : 2.0/3;
+    double w = 2.0/3;
     // m = n-1
     if(discretors[level].first.size() != level-1) 
         throw std::invalid_argument("Matrix size not match with level");
     int m = discretors[level].first.size();
     
     sparseMatrix I(m, m);
+    // discretors[level].first.print();
+    // std::cerr << std::endl;
     for(int i = 1; i <= m; i++) I.set_value(i, i, 1.0);
     sparseMatrix Tw = I - (discretors[level].first*w*h*h/2);
-    // std::cerr << "Tw at level " << level << " = " << std::endl;
     // Tw.print();
-    // std::cerr << std::endl;
+    // sparseMatrix Tw = I*(1 - w) 
+    //                 + discretors[level].first.InverseDiagonal()
+    //                 *(discretors[level].first - discretors[level].first.Diagonal())*w;
     sparseVector current = RHS*w*h*h/2;
-    // std::cerr << "current at level = "<< level << " = " << std::endl;
-    // current.print();
-    // std::cerr << std::endl;
+    // sparseVector current = discretors[level].first.InverseDiagonal()*RHS*w;
     
     for(int i = 0; i < nu1; i++) {
         v0 = (Tw*v0) + current;
-        // std::cerr << "v0 at level " << level << " after " << i+1 << " iteration = " ;
-        // v0.print();
-        // std::cerr << std::endl;
     }
     return v0;
 }
 
+
+template<>
+class Multigrid<10> : public Multigrid<0> {
+
+public:
+sparseVector v0;
+    Multigrid<10>(DynamicFunction& f, DynamicFunction& g, std::string B, DynamicFunction& exact):Multigrid<0>(f, g, B, exact){};
+    
+    void constructDirichlet(sparseMatrix& A, int n){
+        A.set_value(1, 1, 2.0), A.set_value(n-1, n-1, 2.0);
+        A.set_value(n-1, n-2, -1.0),A.set_value(1, 2, -1.0);
+    }
+    void constructNeumann(sparseMatrix& A, sparseVector& b, int n){
+        A.set_value(1, 1, 1.0), A.set_value(n-1, n-2, -1.0);
+        A.set_value(1, 2, -1.0), A.set_value(n-1, n-1, 1.0);
+        b.set_value(1, f(0,0)-n*g(0,0)), 
+        b.set_value(n-1, f(1,1)-n*g(1,1));
+    }
+    
+    
+    void generateSparseMatrix(int level) override{
+        int m = level;
+        sparseMatrix A(m-1, m-1);
+        sparseVector b(m-1);
+        v0.resize(m-1);
+        double h = 1.0/m;
+
+        for(int i = 2; i <= m-2; i++) for(int index = i-1; index <= i+1; index++)
+            if((index-i+2) % 2 != 0) A.set_value(i, index, -1.0);
+            else A.set_value(i, index, 2.0);
+        switch (conditionType)
+        {
+        case ConditionType::Dirichlet:
+            constructDirichlet(A, m);
+            break;
+        case ConditionType::Neumann:
+            constructNeumann(A, b, m);
+            break;
+        default:
+            throw std::invalid_argument("Invalid condition type");
+            break;
+        }
+        for(double i = 1; i <= m-1; i ++){
+            b.set_value(i, 0);
+            v0.set_value(i, 1);
+        }
+        b.set_value(1, 1);
+        b.set_value(m-1, 1);
+        b.tidyUp();
+        A.tidyUp();
+        A = A/h/h;
+        b = b/h/h;
+
+        discretors[m] = std::make_pair(A, b);
+    }
+
+    void test_relaxation(int level, int nu1){
+        generateSparseMatrix(level);
+        sparseVector RHS = discretors[level].second;
+        test_relaxation(level, nu1, v0, RHS);
+    }
+
+    void test_relaxation(int level, int nu1, sparseVector v0, sparseVector RHS){
+        std::cout << "Relaxation test:" << std::endl;
+        for(int i = 0; i < nu1; i++){
+            sparseVector v = relaxation(level, nu1, v0, RHS);
+            std::cout << "Iteration " << i+1 << ": " << v.norm() << std::endl;
+            v0 = v;
+            v.print();
+            std::cout << std::endl;
+        }
+    }
+
+
+};
 
 // //强制特化
 // template<int Dim>
@@ -260,8 +338,8 @@ public:
     void constructDirichlet(sparseMatrix& A, sparseVector& b, int n){
         A.set_value(1, 1, 2.0), A.set_value(n-1, n-1, 2.0);
         A.set_value(n-1, n-2, -1.0),A.set_value(1, 2, -1.0);
-        b.set_value(1, n*n*exact(0,0)+f(0,0)), 
-        b.set_value(n-1, n*n*exact(1,1)+f(1,1));
+        b.set_value(1, n*n*exact(0,0)+f(1.0/n,1.0/n)), 
+        b.set_value(n-1, n*n*exact(1,1)+f(1.0-1.0/n,1.0/n));
     }
     void constructNeumann(sparseMatrix& A, sparseVector& b, int n){
         A.set_value(1, 1, 1.0), A.set_value(n-1, n-2, -1.0);
@@ -314,6 +392,9 @@ void Multigrid<1>::generateSparseMatrix(int level){
 
 
 
+//===============================================================================
+
+
 
 
 
@@ -337,7 +418,7 @@ public:
     Multigrid<2>(DynamicFunction& f, DynamicFunction& g, DynamicFunction& gx, DynamicFunction& gy, 
                  std::string B, DynamicFunction& exact):Multigrid<0>(f, g, B, exact), gx(gx), gy(gy){};
 
-    sparseVector relaxation2D(int level, int nu1, sparseVector v0, sparseVector RHS) {
+    sparseVector relaxation2D(int level, int nu1, sparseVector &v0, sparseVector &RHS) {
         h = 1.0/level;
         // 根据网格层数动态调整松弛权重
         double w = (level <= 8) ? 0.8 : 2.0/3;
@@ -452,15 +533,21 @@ public:
                 v_c[i][j] = v_coarse((j-1)*(coarse_level) + i);
             }
         }
-
+        // std::cerr << "coarse ="  <<std::endl;
+        // for(int i = 1; i <= coarse_level; i++){
+        //     for(int j = 1; j <= coarse_level; j++) {
+        //         std::cerr <<v_c[i][j] << " ";
+        //     }
+        //     std::cerr << std::endl;
+        // }
         for(int j = 2; j <= fine_level-1; j++)
             for(int i = 2; i <= fine_level-1; i++) {
                 if(i % 2 == 0 && j % 2 == 0)
-                    v_f[i][j] = v_c[(i/2-1)][(j/2-1)];
+                    v_f[i][j] = v_c[(i/2)][(j/2)];
                 else if(i % 2 == 0 && j % 2 != 0)
-                    v_f[i][j] = 1.0/2*(v_c[(i/2-1)][(j-1)/2] + v_c[(i/2-1)][(j+1)/2]);
+                    v_f[i][j] = 1.0/2*(v_c[(i/2)][(j-1)/2] + v_c[(i/2)][(j+1)/2]);
                 else if(i % 2 != 0 && j % 2 == 0)   
-                    v_f[i][j] = 1.0/2*(v_c[(i-1)/2][(j/2-1)] + v_c[(i+1)/2][(j/2-1)]);
+                    v_f[i][j] = 1.0/2*(v_c[(i-1)/2][(j/2)] + v_c[(i+1)/2][(j/2)]);
                 else if(i % 2 != 0 && j % 2 != 0)
                     v_f[i][j] = (v_c[(i-1)/2][(j-1)/2] + v_c[(i-1)/2][(j+1)/2] + v_c[(i+1)/2][(j-1)/2] + v_c[(i+1)/2][(j+1)/2]) / 4.0;
             }
@@ -471,17 +558,25 @@ public:
                 v_f[k][fine_level] = 3.0/2*v_c[k/2][coarse_level] - 1.0/2*v_c[(k/2)][coarse_level-1];
                 v_f[fine_level][k] = 3.0/2*v_c[coarse_level][k/2] - 1.0/2*v_c[coarse_level-1][k/2];
             }
-            else //if(k % 2 != 0)
+            else if(k % 2 != 0){
                 v_f[1][k] = 3.0/4*(v_c[1][(k-1)/2] + v_c[1][(k+1)/2]) - 1.0/4*(v_c[2][(k-1)/2]+v_c[2][(k+1)/2]);
                 v_f[k][1] = 3.0/4*(v_c[(k-1)/2][1] + v_c[(k+1)/2][1]) - 1.0/4*(v_c[(k-1)/2][2]+v_c[(k+1)/2][2]);
                 v_f[k][fine_level] = 3.0/4*(v_c[(k-1)/2][coarse_level] + v_c[(k+1)/2][coarse_level]) - 1.0/4*(v_c[(k-1)/2][coarse_level-1]+v_c[(k+1)/2][coarse_level-1]);
                 v_f[fine_level][k] = 3.0/4*(v_c[coarse_level][(k-1)/2] + v_c[coarse_level][(k+1)/2]) - 1.0/4*(v_c[coarse_level-1][(k-1)/2]+v_c[coarse_level-1][(k+1)/2]);
+            }
         }
         v_f[1][1] = 3.0/2*v_c[1][1] - 1.0/2*v_c[2][2];
         v_f[fine_level][1] = 3.0/2*v_c[coarse_level][1] - 1.0/2*v_c[coarse_level-1][2];
         v_f[1][fine_level] = 3.0/2*v_c[1][coarse_level] - 1.0/2*v_c[2][coarse_level-1];
         v_f[fine_level][fine_level] = 3.0/2*v_c[coarse_level][coarse_level] - 1.0/2*v_c[coarse_level-1][coarse_level-1];
-
+        // std::cerr << "fine = "<<std::endl;
+        // for(int i = 1; i <= fine_level; i++){
+        //     for(int j = 1; j <= fine_level; j++) {
+        //         std::cerr <<v_f[i][j] << " ";
+        //     }
+        //     std::cerr << std::endl;
+        // }
+        // std::cerr << v_f[2][1] << " " << v_c[1][1] <<" "<<v_c[1][2]<<std::endl;
         for(int j = 1; j <= fine_level; j++) {
             for(int i = 1; i <= fine_level; i++) {
                 v_fine.set_value((j-1)*(fine_level) + i, v_f[i][j]);
@@ -493,21 +588,22 @@ public:
     //level = n； 生成n-1阶矩阵和右端项
     void generateSparseMatrix(int level) override;
 
-    sparseVector VCycle2D(int level, sparseVector vh, sparseVector RHS_level, 
+    sparseVector VCycle2D(int level, sparseVector &vh, sparseVector &RHS_level, 
         int nu1, int nu2, IRestrictionFunc IRes, IInterpolationFunc IInter) {
         generateSparseMatrix(level);
-        vh = relaxation2D(level, nu1, vh, RHS_level);
+        relaxation2D(level, nu1, vh, RHS_level);
 
         if (level > 4) {
-
-            sparseVector residual = RHS_level - discretors[level].first * vh;
+            sparseVector RHS((level/2-1)*(level/2-1));
+            sparseVector residual = (RHS_level - (discretors[level].first * vh));
             std::cerr << "Residual norm at level " << level << ": " << residual.norm() << std::endl;
-            sparseVector RHS_coarse = IRes(level, residual);
+            RHS = IRes(level, residual);
             sparseVector v_2h((level/2-1)*(level/2-1));
 
-            v_2h = VCycle2D(level/2, v_2h, RHS_coarse, nu1, nu2, IRes, IInter);
+            VCycle2D(level/2, v_2h, RHS, nu1, nu2, IRes, IInter);
+
             vh = vh + IInter(level/2, v_2h);
-            vh = relaxation2D(level, nu2, vh, RHS_level);
+            relaxation2D(level, nu2, vh, RHS_level);
         }
         else {
             try {
@@ -523,7 +619,7 @@ public:
                 }
             } catch(...) {
                 std::cerr << "Direct solver failed, falling back to relaxation" << std::endl;
-                vh = relaxation(level, nu1, vh, RHS_level);
+                relaxation(level, nu1, vh, RHS_level);
             }
         } 
         return vh;
@@ -540,8 +636,8 @@ public:
             vh = IInter(level/2, v2h);
         }
         //FMG-3
-        vh = VCycle2D(level, vh, RHS, nu1, nu2, IRes, IInter);
-        RHS = (RHS - (discretors[level].first*vh));
+        VCycle2D(level, vh, RHS, nu1, nu2, IRes, IInter);
+        RHS = discretors[level].first*vh;
         return vh;
     };
 
@@ -598,11 +694,15 @@ public:
     double errorAnalysis2D(int m){
         sparseVector v(this->sol.size());
         double h = 1.0/(this->sol.size()+1);
-        for(int i = 1; i <= m-1; i++) for(int j = 1; j <= m-1; j++)
+        for(int j = 1; j <= m-1; j++) for(int i = 1; i <= m-1; i++)
             v.set_value((j-1)*(m-1)+i, exact(i*h,j*h));
         double err = 0;
-        for(int i = 1; i <= m-1; i++) for(int j = 1; j <= m-1; j++)
-            err += pow(this->sol((i-1)*(m-1)+j) - v((i-1)*(m-1)+j), 2);
+        
+        // std::cerr<<"v = " <<std::endl;
+        // v.print();
+        // std::cerr<<std::endl;
+        for(int i = 1; i <= (m-1)*(m-1); i++)
+            err += pow(this->sol(i)-v(i), 2);
         return sqrt(err);
     }
 
@@ -695,8 +795,185 @@ void Multigrid<2>::generateSparseMatrix(int level){
     b.tidyUp();
     A.tidyUp();
     A = A/h/h;
+
+    
+    // Eigen::MatrixXd AE = A.toDense();
+    // Eigen::VectorXd bE = b.toDense();
+    // Eigen::VectorXd x = AE.colPivHouseholderQr().solve(bE);
+    
+
+    // for(int i = 0; i < x.size(); ++i) {
+    //     std::cerr << x(i) << " ";
+    // }
+    // std::cerr<<"sol = " <<std::endl;
+    // this->sol.print();
+    // std::cerr<<std::endl;
+
+
     // A.print();
     // std::cerr << "Matrix & RHS generated with level = " << level << " complete " << std::endl;
 
     discretors[m] = std::make_pair(A, b);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+//测试2D
+template<>
+class Multigrid<20> : public Multigrid<2> {
+private:
+public:
+    Multigrid<20>(DynamicFunction& f, DynamicFunction& g, DynamicFunction& gx, DynamicFunction& gy, 
+        std::string B, DynamicFunction& exact)
+        : Multigrid<2>(f, g,gx,gy, B, exact){};
+    sparseVector v0;    
+    sparseVector Test_linear;
+    
+    void generateSparseMatrix(int level) override{
+        int m = level;
+        sparseMatrix A((m-1)*(m-1), (m-1)*(m-1));
+        sparseVector b((m-1)*(m-1));
+        v0.resize((m-1)*(m-1));
+        double h = 1.0/m;
+    
+                //内点
+        for(int i = 2; i <= m-2; i++) for(int j = 2; j <= m-2; j++)
+            A.set_value((j-1)*(m-1)+i, (j-1)*(m-1)+i, 4.0),
+            A.set_value((j-1)*(m-1)+i, (j-1)*(m-1)+i-1, -1.0),
+            A.set_value((j-1)*(m-1)+i, (j-1)*(m-1)+i+1, -1.0),
+            A.set_value((j-1)*(m-1)+i, (j-2)*(m-1)+i, -1.0),
+            A.set_value((j-1)*(m-1)+i, (j)*(m-1)+i, -1.0);
+        //边界
+        for(int k = 2; k <= m-2; k++)
+            A.set_value((k-1)*(m-1)+1, (k-1)*(m-1)+1, 4.0),
+            A.set_value((k-1)*(m-1)+1, (k-1)*(m-1)+2, -1.0),
+            A.set_value((k-1)*(m-1)+1, (k-2)*(m-1)+1, -1.0),
+            A.set_value((k-1)*(m-1)+1, (k)*(m-1)+1, -1.0),
+
+            A.set_value(k*(m-1), k*(m-1), 4.0),
+            A.set_value(k*(m-1), k*(m-1)-1, -1.0),
+            A.set_value(k*(m-1), (k-1)*(m-1), -1.0),
+            A.set_value(k*(m-1), (k+1)*(m-1), -1.0),
+
+            A.set_value(k, k, 4.0),
+            A.set_value(k, k-1, -1.0),
+            A.set_value(k, k+1, -1.0),
+            A.set_value(k, k+m-1, -1.0),
+
+            A.set_value((m-2)*(m-1)+k, (m-2)*(m-1)+k, 4.0),
+            A.set_value((m-2)*(m-1)+k, (m-2)*(m-1)+k-1, -1.0),
+            A.set_value((m-2)*(m-1)+k, (m-2)*(m-1)+k+1, -1.0),
+            A.set_value((m-2)*(m-1)+k, (m-3)*(m-1)+k, -1.0);
+
+        //角点
+        A.set_value(1, 1, 4.0), 
+        A.set_value(1, 2, -1.0),
+        A.set_value(1, m, -1.0);
+
+        A.set_value(m-1, m-1, 4.0), 
+        A.set_value(m-1, m-2, -1.0), 
+        A.set_value(m-1, 2*(m-1), -1.0);
+
+        A.set_value((m-2)*(m-1)+1, (m-2)*(m-1)+1, 4.0), 
+        A.set_value((m-2)*(m-1)+1, (m-2)*(m-1)+2, -1.0), 
+        A.set_value((m-2)*(m-1)+1, (m-3)*(m-1)+1, -1.0);
+
+        A.set_value((m-1)*(m-1), (m-1)*(m-1), 4.0), 
+        A.set_value((m-1)*(m-1), (m-1)*(m-1)-1, -1.0), 
+        A.set_value((m-1)*(m-1), (m-2)*(m-1), -1.0);
+
+        for(double i = 1; i <= (m-1)*(m-1); i ++){
+            b.set_value(i, 1);
+        }
+
+        // Eigen::MatrixXd AE = A.toDense();
+        // Eigen::VectorXd bE = b.toDense();
+        // Eigen::VectorXd x = AE.colPivHouseholderQr().solve(bE);
+        
+        // for(int i = 0; i < x.size(); ++i) {
+        //     std::cerr << x(i) << " ";
+        // }
+        // std::cerr << std::endl;
+
+        v0.set_value(1, 0.6875),
+        v0.set_value(2, 0.875),
+        v0.set_value(3, 0.6875),
+        v0.set_value(4, 0.875),
+        v0.set_value(5, 1.125),
+        v0.set_value(6, 0.875),
+        v0.set_value(7, 0.6875),
+        v0.set_value(8, 0.875),
+        v0.set_value(9, 0.6875);
+
+        b.set_value(1, 1);
+        b.set_value(m-1, 1);
+        b.tidyUp();
+        A.tidyUp();
+        // A.print();
+        A = A/h/h;
+        b = b/h/h;
+
+        discretors[m] = std::make_pair(A, b);
+    }
+
+    void test_relaxation(int level, int nu1){
+        generateSparseMatrix(level);
+        sparseVector RHS = discretors[level].second;
+        test_relaxation(level, nu1, v0, RHS);
+    }
+
+    void test_relaxation(int level, int nu1, sparseVector v0, sparseVector RHS){
+        std::cout << "Relaxation test:" << std::endl;
+        for(int i = 0; i < nu1; i++){
+            sparseVector v = relaxation2D(level, nu1, v0, RHS);
+            std::cout << "Iteration " << i+1 << ": " << v.norm() << std::endl;
+            v0 = v;
+            v.print();
+            std::cout << std::endl;
+        }
+    }
+
+    void test_irestrict(int level){
+        generateSparseMatrix(level);
+        sparseVector RHS_2 = fullWeighting2D(level,  v0);
+        std::cout << "Full weighting test:" << std::endl;
+        std::cout << "RHS = " << std::endl;
+        v0.print();
+        std::cout << std::endl;
+        std::cerr << "RHS_2 = " << std::endl;
+        RHS_2.print();
+        std::cout << std::endl;
+    }
+
+    void test_prolongate(int level){
+        // generateSparseMatrix(level);
+        Test_linear.resize(4);
+        Test_linear.set_value(1, 1);
+        Test_linear.set_value(2, 2);
+        Test_linear.set_value(3, 3);
+        Test_linear.set_value(4, 4);
+        sparseVector RHS2 = linear2D(level, Test_linear);
+        // std::cout << "Prolongation test:" << std::endl;
+        // std::cout << "RHS = " << std::endl;
+        // Test_linear.print();
+        // std::cout << std::endl;
+        // std::cerr << "RHS2 = " << std::endl;
+        // RHS2.print();
+        // std::cout << std::endl;
+    }
+};    
+
+
+
+
+
+

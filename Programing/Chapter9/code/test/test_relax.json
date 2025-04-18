@@ -1,0 +1,26 @@
+{
+    "Dim" : 2,
+
+
+    "funcName1": "-PI*PI*sin(PI*x)",
+    "boundaryFuncName1": "0",
+
+
+    "funcName2": "exp(y+sin(x))*(cos(x)*cos(x)-sin(x)+1)",
+    "boundaryFuncName2": "exp(y+sin(x))*(1+cos(x))",
+    "boundaryFuncNamex2": "cos(x)*exp(y+sin(x))",
+    "boundaryFuncNamey2": "exp(y+sin(x))",
+    "pixelNum": 3,
+    "boundaryCondition": "Dirichlet",
+
+
+    "exactSolution" : "sin(PI*x)",
+    "InteratorFuncName":"FMGCycle",
+    "RestrictionFuncName":"fullWeighting",
+    "InterpolationFuncName":"linear",
+    "solverTorlerance":1e-3,
+    "nu1":5,
+    "nu2":5,
+    "maxIter":10
+
+}

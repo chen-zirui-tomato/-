@@ -18,9 +18,12 @@ include_directories(
 # Add library
 add_library(NumericalAnalysisLib src/Sparse.cpp)
 
-# Add executable
+# Add executables
 add_executable(P test/P.cpp)
 target_link_libraries(P PRIVATE NumericalAnalysisLib)
+
+add_executable(RelaxationTest test/test_relax.cpp)
+target_link_libraries(RelaxationTest PRIVATE NumericalAnalysisLib)
 
 # Enhanced Python/matplotlib-cpp support
 find_package(Python COMPONENTS Interpreter Development)

@@ -184,6 +184,7 @@ sparseMatrix sparseMatrix::Triverse() const {
     return result;
 }
 
+//求对角线矩阵
 sparseMatrix sparseMatrix::Diagonal() const {
     sparseMatrix result(row, col);
     for(int i = 1; i <= row; i++) {
@@ -192,6 +193,7 @@ sparseMatrix sparseMatrix::Diagonal() const {
     return result;
 }
 
+//求逆对角线矩阵
 sparseMatrix sparseMatrix::InverseDiagonal() const {
     sparseMatrix result(row, col);
     for(int i = 1; i <= row; i++) {
@@ -313,6 +315,39 @@ sparseMatrix sparseMatrix::operator-(const sparseMatrix& other) const {
 //     result.tidyUp();
 //     return result;
 // }
+
+sparseMatrix sparseMatrix::operator*(const sparseMatrix& other) const {
+    if(col != other.row)
+        throw std::invalid_argument("Matrix * size not match");
+    sparseMatrix result(row, other.col); 
+    sparseMatrix otherT = other.Triverse();
+    
+    for(int i = 1; i <= row; i++) {
+        for(int j = 1; j <= other.col; j++) {
+            double sum = 0;
+            auto& row_i = data[i-1];
+            auto& col_j = otherT.data[j-1];
+            auto it1 = row_i.begin();
+            auto it2 = col_j.begin();
+            
+            while(it1 != row_i.end() && it2 != col_j.end()) {
+                if(it1->first < it2->first) {
+                    ++it1;
+                } else if(it1->first > it2->first) {
+                    ++it2;
+                } else {
+                    sum += it1->second * it2->second;
+                    ++it1;
+                    ++it2;
+                }
+            }
+            if(sum != 0) {
+                result.set_value(i, j, sum);
+            }
+        }
+    }
+    return result;
+}
 
 sparseMatrix sparseMatrix::operator*(double scalar) const {
     sparseMatrix result(row, col);

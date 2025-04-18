@@ -152,6 +152,19 @@ P/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/P.dir/build.make CMakeFiles/P.dir/build
 .PHONY : P/fast
 
+#=============================================================================
+# Target rules for targets named RelaxationTest
+
+# Build rule for target.
+RelaxationTest: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 RelaxationTest
+.PHONY : RelaxationTest
+
+# fast build rule for target.
+RelaxationTest/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RelaxationTest.dir/build.make CMakeFiles/RelaxationTest.dir/build
+.PHONY : RelaxationTest/fast
+
 src/Sparse.o: src/Sparse.cpp.o
 .PHONY : src/Sparse.o
 
@@ -200,6 +213,30 @@ test/P.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/P.dir/build.make CMakeFiles/P.dir/test/P.cpp.s
 .PHONY : test/P.cpp.s
 
+test/test_relax.o: test/test_relax.cpp.o
+.PHONY : test/test_relax.o
+
+# target to build an object file
+test/test_relax.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RelaxationTest.dir/build.make CMakeFiles/RelaxationTest.dir/test/test_relax.cpp.o
+.PHONY : test/test_relax.cpp.o
+
+test/test_relax.i: test/test_relax.cpp.i
+.PHONY : test/test_relax.i
+
+# target to preprocess a source file
+test/test_relax.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RelaxationTest.dir/build.make CMakeFiles/RelaxationTest.dir/test/test_relax.cpp.i
+.PHONY : test/test_relax.cpp.i
+
+test/test_relax.s: test/test_relax.cpp.s
+.PHONY : test/test_relax.s
+
+# target to generate assembly for a file
+test/test_relax.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RelaxationTest.dir/build.make CMakeFiles/RelaxationTest.dir/test/test_relax.cpp.s
+.PHONY : test/test_relax.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -211,12 +248,16 @@ help:
 	@echo "... test"
 	@echo "... NumericalAnalysisLib"
 	@echo "... P"
+	@echo "... RelaxationTest"
 	@echo "... src/Sparse.o"
 	@echo "... src/Sparse.i"
 	@echo "... src/Sparse.s"
 	@echo "... test/P.o"
 	@echo "... test/P.i"
 	@echo "... test/P.s"
+	@echo "... test/test_relax.o"
+	@echo "... test/test_relax.i"
+	@echo "... test/test_relax.s"
 .PHONY : help
 
 

@@ -1,23 +1,26 @@
 {
     "Dim" : 1,
+
+
     "funcName1": "-exp(x+sin(x))*(1+cos(x)*cos(x)+2*cos(x)-sin(x))",
     "boundaryFuncName1": "exp(x+sin(x))*(1+cos(x))",
 
 
-    "funcName2": "exp(y+sin(x))*(cos(x)*cos(x)-sin(x)+1)",
+    "funcName2": "-exp(y+sin(x))*(cos(x)*cos(x)-sin(x)+1)",
     "boundaryFuncName2": "exp(y+sin(x))*(1+cos(x))",
     "boundaryFuncNamex2": "cos(x)*exp(y+sin(x))",
     "boundaryFuncNamey2": "exp(y+sin(x))",
-    "pixelNum": 128,
+    "pixelNum": 64,
     "boundaryCondition": "Dirichlet",
-    "exactSolution" : "exp(y+sin(x))",
 
-    "InteratorFuncName":"FMGCycle",
+
+    "exactSolution" : "exp(y+sin(x))",
+    "InteratorFuncName":"VCycle",
     "RestrictionFuncName":"fullWeighting",
     "InterpolationFuncName":"linear",
-    "solverTorlerance":1e-3,
-    "nu1":3,
-    "nu2":2,
-    "maxIter":10
+    "solverTorlerance":1e-5,
+    "nu1":5,
+    "nu2":5,
+    "maxIter":5
 
-}
+}  
