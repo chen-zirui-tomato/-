@@ -2,11 +2,6 @@
 #define FUNCTION
 
 #include <exprtk.hpp>
-enum class ConditionType{
-    Dirichlet,
-    Mixed,
-    Neumann
-};
 
 class Function{
 public:

@@ -1,0 +1,86 @@
+\documentclass[UTF8]{ctexart}
+\usepackage{geometry}
+\usepackage[backend=biber, style=authoryear]{biblatex} % 示例配置
+\addbibresource{references.bib} % 替换为你的参考文献文件
+\geometry{margin=1.5cm, vmargin={0pt,1cm}}
+\setlength{\topmargin}{-1cm}
+\setlength{\paperheight}{29.7cm}
+\setlength{\textheight}{25.3cm}
+
+% useful packages.
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{enumerate}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{fancyhdr}
+\usepackage{layout}
+\usepackage{listings}
+\usepackage{xcolor}
+\lstset{language=C++}
+\setlength{\headheight}{13pt}  % 增加头部高度
+\usepackage{float, caption}
+
+% Listings setting for code formatting
+\lstset{
+    basicstyle=\ttfamily,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    tabsize=4
+}
+
+% some common commands
+\newcommand{\dif}{\mathrm{d}}
+\newcommand{\avg}[1]{\left\langle #1 \right\rangle}
+\newcommand{\difFrac}[2]{\frac{\dif #1}{\dif #2}}
+\newcommand{\pdfFrac}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\OFL}{\mathrm{OFL}}
+\newcommand{\UFL}{\mathrm{UFL}}
+\newcommand{\fl}{\mathrm{fl}}
+\newcommand{\op}{\odot}
+\newcommand{\Eabs}{E_{\mathrm{abs}}}
+\newcommand{\Erel}{E_{\mathrm{rel}}}
+
+\begin{document}
+
+\pagestyle{fancy}
+\fancyhead{}
+\lhead{陈梓锐}
+\chead{22435036}
+\rhead{\today}
+
+
+%\begin{abstract}
+ %   The abstract is not necessary for the theoretical homework, 
+   % but for the programming project, 
+    %you are encouraged to write one.      
+%\end{abstract}
+
+% ============================================
+\subsection*{如何使用}
+在code中build文件下使用make命令编译，编译成功后，在build文件夹下会生成可执行文件P,在test目录下的test.josn调整初始条件即可使用不同的测试用例。
+
+2维情形下运行较慢，因为在插值时对向量进行了多次复制，导致效率较低。
+
+\subsection*{Problem $exp(y+sin(x))$}
+\subsubsection*{1维VCycle}
+规则边界，Dirichlet边界条件，fullWeighting松弛, linear插值。
+
+
+
+
+
+
+
+
+% ===============================================
+
+\end{document}
