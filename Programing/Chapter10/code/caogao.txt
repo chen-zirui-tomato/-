@@ -1,0 +1,591 @@
+class AdamsBashforthSolver : public EquationSolver {
+private:
+    int order_;
+    std::vector<std::vector<double>> u_;
+    std::vector<double> coefficients_;
+    std::vector<double> u_0;
+    std::vector<double> u_1 = {0.994, 0, 0, 0, -2.0015851063790825224, 0}; 
+    std::vector<double> u_2 = {0.879779227778, 0, 0, 0, -0.379677780949, 0};
+    std::vector<double> u_3 = {1,1,1,1,1,1};
+
+public:
+    AdamsBashforthSolver(int order) : order_(order) {
+        loadCoefficients(order);
+    }
+
+    void solve(const DynamicFunction_7& Func, double t_end, double h,
+               int condition_type, std::string filename, bool is_test = false) override {
+        switch(condition_type){
+            case 1: u_0 = u_1; break;
+            case 2: u_0 = u_2; break;
+            case 3: u_0 = u_3; break;
+            default: throw std::invalid_argument("Invalid condition type");
+        }
+
+        integrateGeneralAB(Func, t_end, h);
+
+        if (is_test)
+            plot_test(u_, filename, h);
+        else
+            plot(u_, filename);
+
+        double err = error(u_[0], u_.back());
+        std::cout << "[AB" << order_ << "] 最终误差 = " << err << std::endl;
+    }
+
+    std::string name() const override {
+        return "Adams-Bashforth";
+    }
+
+private:
+    void loadCoefficients(int order) {
+        static const std::map<int, std::vector<double>> ab_coeffs = {
+            {1, {1.0}},
+            {2, {3.0/2, -1.0/2}},
+            {3, {23.0/12, -16.0/12, 5.0/12}},
+            {4, {55.0/24, -59.0/24, 37.0/24, -9.0/24}}
+        };
+        auto it = ab_coeffs.find(order);
+        if (it == ab_coeffs.end()) throw std::invalid_argument("Unsupported AB order");
+        coefficients_ = it->second;
+    }
+
+    void integrateGeneralAB(const DynamicFunction_7& Func, double t_end, double h) {
+        int n = static_cast<int>(t_end / h);
+        u_.resize(n + 1);
+        u_[0] = u_0;
+
+        // 使用 RK4 启动前 order_-1 步
+        for (int i = 1; i < order_; ++i) {
+            u_[i] = u_[i-1] + RK4(Func, (i-1)*h, u_[i-1], h);
+        }
+
+        // Adams-Bashforth 主循环
+        for (int i = order_; i <= n; ++i) {
+            std::vector<double> sum(6, 0.0);
+            for (int j = 0; j < order_; ++j) {
+                std::vector<double> f = Func(u_[i - 1 - j], (i - 1 - j)*h);
+                for (int k = 0; k < 6; ++k)
+                    sum[k] += coefficients_[j] * f[k];
+            }
+            u_[i] = u_[i-1];
+            for (int k = 0; k < 6; ++k)
+                u_[i][k] += h * sum[k];
+        }
+    }
+};
+
+
+
+
+
+
+
+
+
+============================================================================================
+
+
+
+
+
+
+class AdamsBashforthSolver : public EquationSolver {
+private:
+    int order_;
+    //储存解向量
+    std::vector<std::vector<double>> u_;
+    //储存系数
+    std::vector<double> coefficients_;
+    //条件类型
+    std::vector<double> u_0;
+    std::vector<double> u_1 = {0.994, 0, 0, 0, -2.0015851063790825224, 0}; 
+    std::vector<double> u_2 = {0.879779227778, 0, 0, 0, -0.379677780949, 0};
+    std::vector<double> u_3 = {1,1,1,1,1,1};
+public:
+    AdamsBashforthSolver(int order) : order_(order) {
+        loadCoefficients(order);
+    }
+    void solve(const DynamicFunction_7& Func, double t_end, double h,
+                int condition_type, std::string filename, bool is_test = false) override{
+        //
+        switch(condition_type){
+            case 1: u_0 = u_1; break;
+            case 2: u_0 = u_2; break;
+            case 3: u_0 = u_3; break;
+            default: throw std::invalid_argument("Invalid condition type for Adams-Bashforth");
+        }
+        switch (order_) {
+            case 1: integrateAB1(Func, t_end, h); break;
+            case 2: integrateAB2(Func, t_end, h); break;
+            case 3: integrateAB3(Func, t_end, h); break;
+            case 4: integrateAB4(Func, t_end, h); break;
+            default: throw std::invalid_argument("Invalid order for Adams-Bashforth");
+        }
+        if(is_test){
+            plot_test(u_, filename, h);
+        }
+        else
+            plot(u_, filename);
+        std::vector<double> u_approx = u_[u_.size()-1];
+        error(u_[0], u_approx);
+    }
+    std::string name() const override{
+        return "Adams-Bashforth";
+    }
+private:
+    void loadCoefficients(int order) {
+        // 预定义Adams-Bashforth系数表（阶数 → 系数）
+        static const std::map<int, std::vector<double>> ab_coeffs = {
+            {1, {1.0}},
+            {2, {3.0/2, -1.0/2}},
+            {3, {23.0/12, -16.0/12, 5.0/12}},
+            {4, {55.0/24, -59.0/24, 37.0/24, -9.0/24}}
+        };
+        if (ab_coeffs.find(order) == ab_coeffs.end()) {
+            throw std::invalid_argument("Invalid order for Adams-Bashforth");
+        }
+        coefficients_ = ab_coeffs.at(order);
+    }
+
+    void integrateAB1(const DynamicFunction_7& Func, double t_end, double h) {
+        std::cerr << "Adams-Bashforth 1st order not implemented" << std::endl;
+        //
+        int n = static_cast<int>(t_end / h);
+        u_.resize(n + 1);
+        u_[0] = u_0;
+        for(int i = 1; i <= n; ++i){
+            u_[i] = u_[i-1] + h*(coefficients_[0]*Func(u_[i-1], (i-1)*h));
+        }
+    }
+    void integrateAB2(const DynamicFunction_7& Func, double t_end, double h) {
+        //
+        int n = static_cast<int>(t_end / h);
+        u_.resize(n + 1);
+        u_[0] = u_0;
+        u_[1] = u_[0] + RK4(Func, 0, u_[0], h);
+        for(int i = 2; i <= n; ++i){
+            u_[i] = u_[i-1] + h*(coefficients_[0]*Func(u_[i-1], (i-1)*h) 
+                            + coefficients_[1]*Func(u_[i-2], (i-2)*h));
+        }
+    }
+    void integrateAB3(const DynamicFunction_7& Func, double t_end, double h) {
+        //
+        int n = static_cast<int>(t_end / h);
+        u_.resize(n + 1);
+        u_[0] = u_0;
+        u_[1] = u_[0] + RK4(Func, 0, u_[0], h);
+        u_[2] = u_[1] + RK4(Func, h, u_[1], h);
+        for(int i = 3; i <= n; ++i){
+            u_[i] = u_[i-1] + h*(coefficients_[0]*Func(u_[i-1], (i-1)*h) 
+                            + coefficients_[1]*Func(u_[i-2], (i-2)*h)
+                            + coefficients_[2]*Func(u_[i-3], (i-3)*h));      
+        }
+    }
+    void integrateAB4(const DynamicFunction_7& Func, double t_end, double h) {
+        //
+        int n = static_cast<int>(t_end / h);
+        u_.resize(n + 1);
+        //u_[0]是给定的初始条件
+        u_[0] = u_0;
+        u_[1] = u_[0] + RK4(Func, 0, u_[0], h);
+        u_[2] = u_[1] + RK4(Func, h, u_[1], h);
+        u_[3] = u_[2] + RK4(Func, h+h, u_[2], h);
+        for(int i = 4; i <= n; ++i){
+            u_[i] = u_[i-1] + h*(coefficients_[0]*Func(u_[i-1], (i-1)*h) 
+                            + coefficients_[1]*Func(u_[i-2], (i-2)*h)
+                            + coefficients_[2]*Func(u_[i-3], (i-3)*h)
+                            + coefficients_[3]*Func(u_[i-4], (i-4)*h));      
+        }
+    }
+};
+
+
+
+
+
+
+
+
+=================================================================================================
+灵活的右端项
+#ifndef DYNAMIC_FUNCTION_7_H
+#define DYNAMIC_FUNCTION_7_H
+
+#include <vector>
+#include <string>
+#include <fstream>
+#include <stdexcept>
+#include <exprtk.hpp>
+
+class Function_with_7_parameters {
+public:
+    virtual std::vector<double> operator()(std::vector<double>& x_val, double t_val) const = 0;
+    virtual ~Function_with_7_parameters() {}
+};
+
+class DynamicFunction_7 : public Function_with_7_parameters {
+private:
+    std::vector<std::string> raw_expr_list;
+
+public:
+    explicit DynamicFunction_7(std::ifstream& expr_file) {
+        std::string expr;
+        while (std::getline(expr_file, expr, ';')) {
+            if (!expr.empty()) {
+                raw_expr_list.push_back(expr);
+            }
+        }
+
+        if (raw_expr_list.size() != 6) {
+            throw std::runtime_error("表达式个数不正确，应为6个");
+        }
+    }
+
+    std::vector<double> operator()(std::vector<double>& x_val, double t_val) const override {
+        if (x_val.size() != 6) {
+            throw std::invalid_argument("输入向量必须为6维");
+        }
+
+        double u1 = x_val[0], u2 = x_val[1], u3 = x_val[2];
+        double u4 = x_val[3], u5 = x_val[4], u6 = x_val[5];
+        double t = t_val;
+
+        exprtk::symbol_table<double> table;
+        table.add_variable("u1", u1);
+        table.add_variable("u2", u2);
+        table.add_variable("u3", u3);
+        table.add_variable("u4", u4);
+        table.add_variable("u5", u5);
+        table.add_variable("u6", u6);
+        table.add_variable("t", t);
+        table.add_constant("PI", 3.14159265358979323846);
+        table.add_constant("miu", 0.012277471);
+
+        exprtk::parser<double> parser;
+        std::vector<double> result;
+        result.reserve(6);
+
+        for (const auto& expr_str : raw_expr_list) {
+            exprtk::expression<double> expression;
+            expression.register_symbol_table(table);
+            if (!parser.compile(expr_str, expression)) {
+                throw std::runtime_error("表达式解析失败: " + expr_str);
+            }
+            result.push_back(expression.value());
+        }
+
+        return result;
+    }
+};
+
+#endif // DYNAMIC_FUNCTION_7_H
+
+
+
+
+
+
+
+
+==================================================================
+#ifndef MANUAL_FUNCTION_7_H
+#define MANUAL_FUNCTION_7_H
+
+#include <vector>
+#include <cmath>
+#include <stdexcept>
+
+class Function_with_7_parameters {
+public:
+    virtual std::vector<double> operator()(std::vector<double>& x_val, double t_val) const = 0;
+    virtual ~Function_with_7_parameters() {}
+};
+
+class ManualFunction_7 : public Function_with_7_parameters {
+public:
+    std::vector<double> operator()(std::vector<double>& x_val, double t_val) const override {
+        if (x_val.size() != 6) {
+            throw std::invalid_argument("输入向量必须为6维");
+        }
+
+        double u1 = x_val[0], u2 = x_val[1], u3 = x_val[2];
+        double u4 = x_val[3], u5 = x_val[4], u6 = x_val[5];
+        constexpr double miu = 0.012277471;
+
+        double x1 = u1 + miu - 1;
+        double x2 = u1 + miu;
+
+        double r1_sq = u2*u2 + u3*u3 + x1*x1;
+        double r2_sq = u2*u2 + u3*u3 + x2*x2;
+
+        double r1_3 = std::pow(r1_sq, 1.5);
+        double r2_3 = std::pow(r2_sq, 1.5);
+
+        std::vector<double> result(6);
+        result[0] = u4;
+        result[1] = u5;
+        result[2] = u6;
+
+        result[3] = 2*u5 + u1 - miu * x1 / r1_3 - (1 - miu) * x2 / r2_3;
+        result[4] = -2*u4 + u2 - miu * u2 / r1_3 - (1 - miu) * u2 / r2_3;
+        result[5] = -miu * u3 / r1_3 - (1 - miu) * u3 / r2_3;
+
+        return result;
+    }
+};
+
+#endif // MANUAL_FUNCTION_7_H
+
+
+
+
+
+
+
+===========================================================================
+AM
+class AdamsMoultonSolver : public EquationSolver {
+private:
+    int order_;
+    //储存解向量
+    std::vector<std::vector<double>> u_;
+    //储存系数
+    std::vector<double> coefficients_;
+    //条件类型
+    std::vector<double> u_0;
+    std::vector<double> u_1 = {0.994, 0, 0, 0, -2.0015851063790825224, 0}; 
+    std::vector<double> u_2 = {0.879779227778, 0, 0, 0, -0.379677780949, 0};
+    std::vector<double> u_3 = {1.0,0,0,0,0,0};
+public:
+    AdamsMoultonSolver(int order) : order_(order) {
+        loadCoefficients(order);
+    }
+    void solve(const HardcodedFunction_7& Func, double t_end, int N, int condition_type, std::string filename, bool is_test = false)override{
+        //
+        switch(condition_type){
+            case 1: u_0 = u_1; break;
+            case 2: u_0 = u_2; break;
+            case 3: u_0 = u_3; break;
+            default: throw std::invalid_argument("Invalid condition type for Adams-Bashforth");
+        }
+        switch (order_) {
+            case 1: integrateAM1(Func, t_end, N); break;
+            case 2: integrateAM2(Func, t_end, N); break;
+            case 3: integrateAM3(Func, t_end, N); break;
+            case 4: integrateAM4(Func, t_end, N); break;
+            default: throw std::invalid_argument("Invalid order for Adams-Bashforth");
+        }
+        if(is_test){
+            plot_test(u_, filename, t_end,N);
+        }
+        else
+            plot(u_, filename);
+        std::vector<double> u_approx = u_[u_.size()-1];
+        error(u_[0], u_approx);
+    }
+    std::string name() const override{
+        return "Adams-Moulton";
+    }
+private: 
+    void loadCoefficients(int order) {
+        static const std::map<int, std::vector<double>> am_coeffs = {
+            {1, {1.0}},
+            {2, {1.0/2, 1.0/2}},
+            {3, {5.0/12, 8.0/12, -1.0/12}},
+            {4, {9.0/24, 19.0/24, -5.0/24, -1.0/24}},
+            {5, {251.0/720, 646.0/720, -264.0/720, -106.0/720, 19.0/720}}
+        };
+        if(am_coeffs.find(order) == am_coeffs.end()){
+            throw std::invalid_argument("Invalid order for Adams-Moulton");
+        }
+        coefficients_ = am_coeffs.at(order);
+    }
+
+    void integrateAM1(const HardcodedFunction_7& Func, double t_end, double h) {
+        //
+        int n = static_cast<int>(t_end / h);
+        u_.resize(n + 1);
+        u_[0] = u_0;
+        for(int i = 1; i <= n; ++i){
+            double t_next = i*h;
+            std::vector<double> u_prev = u_[i-1];
+            std::vector<double> history;
+            history.resize(6, 0.0);
+            std::vector<double> u_predict = RK4(Func, (i-1)*h, u_[i-1], h);
+            // auto G = [&](std::vector<double> u) -> std::vector<double>{
+            //     return u_prev + h*(coefficients_[0]*Func(u, t_next) + history);
+            // };
+            // u_[i] = fixedPointIteration(G, h, u_predict, 1e-6, 100);
+            auto G = [&](std::vector<double> u_trial) -> std::vector<double> {
+                std::vector<double> Fu = Func(u_trial, t_next);
+                std::vector<double> RHS = u_prev;
+                for (int i = 0; i < u_trial.size(); ++i) {
+                    RHS[i] += h * (coefficients_[0] * Fu[i] + history[i]);
+                }
+                std::vector<double> res(u_trial.size());
+                for (int i = 0; i < u_trial.size(); ++i) {
+                    res[i] = u_trial[i] - RHS[i];  // G(u) = u - RHS
+                }
+                return res;
+            };
+            u_[i] = newtonIteration(G, u_predict);
+            // u_[i] = u_[i-1] + h*(coefficients_[0]*Func(u_[i], i*h));
+        }
+    }
+    void integrateAM2(const HardcodedFunction_7& Func, double t_end, double h) {
+        //
+        int n = static_cast<int>(t_end / h);
+        u_.resize(n + 1);
+        u_[0] = u_0;
+        for(int i = 1; i <= n; ++i){
+            double t_next = i*h;
+            std::vector<double> u_prev = u_[i-1];
+            std::vector<double> history;
+            history.resize(6, 0.0);
+            for(int j = 1; j <= 1; ++j){
+                history += coefficients_[j]*Func(u_[i-j], (i-j)*h); 
+            }
+            std::vector<double> u_predict = RK4(Func, (i-1)*h, u_[i-1], h);
+            // auto G = [&](std::vector<double> u) -> std::vector<double>{
+            //     return u_prev + h*(coefficients_[0]*Func(u, t_next) + history);
+            // };
+            // u_[i] = fixedPointIteration(G, h, u_predict, 1e-6, 100);      
+            auto G = [&](std::vector<double> u_trial) -> std::vector<double> {
+                std::vector<double> Fu = Func(u_trial, t_next);
+                std::vector<double> RHS = u_prev;
+                for (int i = 0; i < u_trial.size(); ++i) {
+                    RHS[i] += h * (coefficients_[0] * Fu[i] + history[i]);
+                }
+                std::vector<double> res(u_trial.size());
+                for (int i = 0; i < u_trial.size(); ++i) {
+                    res[i] = u_trial[i] - RHS[i];  // G(u) = u - RHS
+                }
+                return res;
+            };
+            u_[i] = newtonIteration(G, u_predict);      
+            // u_[i] = u_[i-1] + h*(coefficients_[0]*Func(u_[i], i*h) 
+            //                 + coefficients_[1]*Func(u_[i-1], (i-1)*h));
+        }
+    }
+    void integrateAM3(const HardcodedFunction_7& Func, double t_end, double h) {
+        //
+        int n = static_cast<int>(t_end / h);
+        u_.resize(n + 1);
+        u_[0] = u_0;
+        u_[1] = u_[0] + RK4(Func, 0, u_[0], h);
+        for(int i = 2; i <= n; ++i){
+            double t_next = i*h;
+            std::vector<double> u_prev = u_[i-1];
+            std::vector<double> history;
+            history.resize(6, 0.0);
+            for(int j = 1; j <= 2; ++j){
+                history += coefficients_[j]*Func(u_[i-j], (i-j)*h); 
+            }
+            std::vector<double> u_predict = RK4(Func, (i-1)*h, u_[i-1], h);
+            // auto G = [&](std::vector<double> u) -> std::vector<double>{
+            //     return u_prev + h*(coefficients_[0]*Func(u, t_next) + history);
+            // };
+            // u_[i] = fixedPointIteration(G, h, u_predict, 1e-6, 100); 
+            auto G = [&](std::vector<double> u_trial) -> std::vector<double> {
+                std::vector<double> Fu = Func(u_trial, t_next);
+                std::vector<double> RHS = u_prev;
+                for (int i = 0; i < u_trial.size(); ++i) {
+                    RHS[i] += h * (coefficients_[0] * Fu[i] + history[i]);
+                }
+                std::vector<double> res(u_trial.size());
+                for (int i = 0; i < u_trial.size(); ++i) {
+                    res[i] = u_trial[i] - RHS[i];  // G(u) = u - RHS
+                }
+                return res;
+            };
+            u_[i] = newtonIteration(G, u_predict);           
+            // u_[i] = u_[i-1] + h*(coefficients_[0]*Func(u_[i], i*h) 
+            //                 + coefficients_[1]*Func(u_[i-1], (i-1)*h)
+            //                 + coefficients_[2]*Func(u_[i-2], (i-2)*h));
+        }
+    }
+    void integrateAM4(const HardcodedFunction_7& Func, double t_end, double h) {
+        //
+        int n = static_cast<int>(t_end / h);
+        u_.resize(n + 1);
+        u_[0] = u_0;
+        u_[1] = RK4(Func, 0, u_[0], h);
+        u_[2] = RK4(Func, h, u_[1], h);
+        for(int i = 3; i <= n; ++i){
+            double t_next = i*h;
+            std::vector<double> u_prev = u_[i-1];
+            std::vector<double> history;
+            history.resize(6, 0.0);
+            for(int j = 1; j <= 3; ++j){
+                history += coefficients_[j]*Func(u_[i-j], (i-j)*h); 
+            }
+            std::vector<double> u_predict = RK4(Func, (i-1)*h, u_[i-1], h);
+            // auto G = [&](std::vector<double> u) -> std::vector<double>{
+            //     return u_prev + h*(coefficients_[0]*Func(u, t_next) + history);
+            // };
+            // u_[i] = fixedPointIteration(G, h, u_predict, 1e-6, 100);
+            auto G = [&](std::vector<double> u_trial) -> std::vector<double> {
+                std::vector<double> Fu = Func(u_trial, t_next);
+                std::vector<double> RHS = u_prev;
+                for (int i = 0; i < u_trial.size(); ++i) {
+                    RHS[i] += h * (coefficients_[0] * Fu[i] + history[i]);
+                }
+                std::vector<double> res(u_trial.size());
+                for (int i = 0; i < u_trial.size(); ++i) {
+                    res[i] = u_trial[i] - RHS[i];  // G(u) = u - RHS
+                }
+                return res;
+            };
+            u_[i] = newtonIteration(G, u_predict);
+            // u_[i] = u_[i-1] + h*(coefficients_[0]*Func(u_[i], i*h)  
+            //                 + coefficients_[1]*Func(u_[i-1], (i-1)*h)   
+            //                 + coefficients_[2]*Func(u_[i-2], (i-2)*h)
+            //                 + coefficients_[3]*Func(u_[i-3], (i-3)*h));
+        }
+    }
+    void integrateAM5(const HardcodedFunction_7& Func, double t_end, double h) {
+        //
+        int n = static_cast<int>(t_end / h);
+        u_.resize(n + 1);
+        u_[0] = u_0;
+        u_[1] = u_[0] + RK4(Func, 0, u_[0], h);
+        u_[2] = u_[1] + RK4(Func, h, u_[1], h);
+        u_[3] = u_[2] + RK4(Func, h+h, u_[2], h);
+        for(int i = 4; i <= n; ++i){
+            double t_next = i*h;
+            std::vector<double> u_prev = u_[i-1];
+            std::vector<double> history;
+            history.resize(6, 0.0);
+            for(int j = 1; j <= 4; ++j){
+                history += coefficients_[j]*Func(u_[i-j], (i-j)*h); 
+            }
+            std::vector<double> u_predict = RK4(Func, (i-1)*h, u_[i-1], h);
+            // auto G = [&](std::vector<double> u) -> std::vector<double>{
+            //     return u_prev + h*(coefficients_[0]*Func(u, t_next) + history);
+            // };
+            // u_[i] = fixedPointIteration(G, h, u_predict, 1e-6, 100); 
+            auto G = [&](std::vector<double> u_trial) -> std::vector<double> {
+                std::vector<double> Fu = Func(u_trial, t_next);
+                std::vector<double> RHS = u_prev;
+                for (int i = 0; i < u_trial.size(); ++i) {
+                    RHS[i] += h * (coefficients_[0] * Fu[i] + history[i]);
+                }
+                std::vector<double> res(u_trial.size());
+                for (int i = 0; i < u_trial.size(); ++i) {
+                    res[i] = u_trial[i] - RHS[i];  // G(u) = u - RHS
+                }
+                return res;
+            };
+            u_[i] = newtonIteration(G, u_predict);           
+            // u_[i] = u_[i-1] + h*(coefficients_[0]*Func(u_[i], i*h) 
+            //                 + coefficients_[1]*Func(u_[i-1], (i-1)*h)
+            //                 + coefficients_[2]*Func(u_[i-2], (i-2)*h) 
+            //                 + coefficients_[3]*Func(u_[i-3], (i-3)*h)   
+            //                 + coefficients_[4]*Func(u_[i-4], (i-4)*h));      
+        }
+    }
+};
+
+============================================================================================
+old bdf

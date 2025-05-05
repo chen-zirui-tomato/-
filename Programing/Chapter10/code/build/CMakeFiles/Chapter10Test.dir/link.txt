@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/Chapter10Test.dir/test/main.cpp.o -o Chapter10Test  /usr/lib/x86_64-linux-gnu/libpython3.12.so 

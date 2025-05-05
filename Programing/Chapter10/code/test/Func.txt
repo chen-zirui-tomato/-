@@ -1,0 +1,6 @@
+u4;
+u5;
+u6;
+2*u5 + u1 - miu*(u1+miu-1)/pow(u2^2+u3^2+(u1+miu-1)^2,1.5) - (1-miu)*(u1+miu)/pow(u2^2+u3^2+pow(u1+miu,2),1.5);
+-2*u4 + u2 - miu*u2/pow(u2^2+u3^2+pow(u1+miu-1,2),1.5) - (1-miu)*u2/(u1+miu)/pow(u2^2+u3^2+pow(u1+miu,2),1.5);
+-miu*u3/pow(u2^2+u3^2+pow(u1+miu-1,2),1.5) - (1-miu)*u3/pow(u2^2+u3^2+pow(u1+miu,2),1.5);

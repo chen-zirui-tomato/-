@@ -15,21 +15,40 @@ public:
         callbacks_[ID] = createFn;
     }
     std::unique_ptr<EquationSolver> createEquationSolver(const std::string &ID) {
-        //解析ID字符串，获取order，如“AB4” -> method = "AB", order = 4
         std::string method;
         int order = 0;
         size_t pos = 0;
-        while (pos < ID.size() && std::isdigit(ID[pos])) {
+    
+        // 提取方法名（非数字部分）
+        while (pos < ID.size() && !std::isdigit(ID[pos])) {
             method += ID[pos];
             pos++;
         }
-        if(pos < ID.size()){
-            order = std::stoi(ID.substr(pos));
-        }
-        if(!callbacks_.count(method)){
-            std::cerr << "EquationSolver:: No such Equation Solver called '" << ID << "'." << std::endl;
+    
+        // 提取阶数（剩余数字部分）
+        try {
+            if (pos < ID.size()) {
+                order = std::stoi(ID.substr(pos));
+            } else {
+                std::cerr << "Error: Missing order in solver ID '" << ID << "'." << std::endl;
+                return nullptr;
+            }
+        } catch (const std::invalid_argument& e) {
+            std::cerr << "Error: Invalid order format in solver ID '" << ID 
+                     << "'. Expected numeric suffix." << std::endl;
+            return nullptr;
+        } catch (const std::out_of_range& e) {
+            std::cerr << "Error: Order value out of range in solver ID '" << ID 
+                     << "'." << std::endl;
             return nullptr;
         }
+    
+        // 检查方法是否存在
+        if (!callbacks_.count(method)) {
+            std::cerr << "EquationSolver: No such method '" << method << "'." << std::endl;
+            return nullptr;
+        }
+    
         return callbacks_[method](order);
     }
 private:

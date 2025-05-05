@@ -1,0 +1,9 @@
+{
+    "FuncName" : "Func",
+    "method" : "AB4",
+    "output_file" : "output",
+    "condition_type" : 2,
+    "step" :200000,
+    "print_accurate" : false,
+    "is_test" : false
+}
