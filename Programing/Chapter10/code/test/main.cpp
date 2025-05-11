@@ -1,5 +1,6 @@
 #include "../include/EquationSolverFactory.h"
 #include "json.hpp"
+#include <chrono> 
 
 void test_convergence(EquationSolver* solver,
     const HardcodedFunction_7& Func,
@@ -33,6 +34,7 @@ void test_convergence(EquationSolver* solver,
 }
 
 int main() {
+    using namespace std::chrono;
     std::ifstream ifs("../test/main.json");
     nlohmann::json data = nlohmann::json::parse(ifs);
     std::string inputDir = "../test/";
@@ -44,7 +46,7 @@ int main() {
     std::string output_file = data["output_file"];
     bool print_accurate = data["print_accurate"];
     bool is_test = data["is_test"];
-    
+
     std::ifstream ifsFunc(inputDir + FuncName + ".txt");
     std::string ofs(inputDir + output_file + ".txt");
 
@@ -55,21 +57,31 @@ int main() {
         T = t1;
     else if(condition_type == 2)
         T = t2;
-    else;
-    
+    else
+        T = t1;
+
+    if(method == "CRK" || method == "ESDIRK" || method == "F" || method == "DP")
+        method = method + "100000";
+
     RegisterAllEquationSolvers();
     auto& fac = EquationSolverFactory::getInstance();
-    //
     std::unique_ptr<EquationSolver> solver = fac.createEquationSolver(method);
-    // DynamicFunction_7 fuc(ifsFunc);
+
     HardcodedFunction_7 func;
+
+    auto total_start = high_resolution_clock::now();
+
     solver->solve(func, T, step, condition_type, ofs, is_test);
+
+    auto total_end = high_resolution_clock::now();
+    auto total_duration = duration_cast<milliseconds>(total_end - total_start);
+    std::cout << "Total CPU Time : " << total_duration.count() / 1000.0 << " seconds." << std::endl;
+
     if(print_accurate){
         std::vector<int> Ns = {10000, 20000, 40000, 80000};
         test_convergence(solver.get(), func, condition_type, Ns, T);
     }
 
     system("python3 ../src/plot.py ");
-    
     return 0;
 }

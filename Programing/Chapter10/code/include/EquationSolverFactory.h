@@ -70,6 +70,12 @@ inline void RegisterAllEquationSolvers() {
     fac.registerEquationSolver("AB", &createAdamsBashforthSolver);
     fac.registerEquationSolver("AM", &createAdamsMoultonSolver);
     fac.registerEquationSolver("BDF", &createBDFSolver);
+    
+    fac.registerEquationSolver("CRK", &createCRKSolver);
+    fac.registerEquationSolver("ESDIRK", &createESDIRKSolver);
+    fac.registerEquationSolver("GLRK", &createGLRKSolver);
+    fac.registerEquationSolver("F", &createFSolver);
+    fac.registerEquationSolver("DP", &createDPSolver);
 }
 
 // 注册完成，可以创建实例了

@@ -1,9 +1,9 @@
 {
     "FuncName" : "Func",
-    "method" : "AB4",
+    "method" : "GLRK2",
     "output_file" : "output",
     "condition_type" : 2,
-    "step" :200000,
+    "step" :20000,
     "print_accurate" : false,
     "is_test" : false
 }

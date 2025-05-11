@@ -1,0 +1,261 @@
+\documentclass[UTF8]{ctexart}
+\usepackage{geometry}
+\usepackage[backend=biber, style=authoryear]{biblatex} % 示例配置
+\addbibresource{references.bib} % 替换为你的参考文献文件
+\geometry{margin=1.5cm, vmargin={0pt,1cm}}
+\setlength{\topmargin}{-1cm}
+\setlength{\paperheight}{29.7cm}
+\setlength{\textheight}{25.3cm}
+
+% useful packages.
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{enumerate}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{fancyhdr}
+\usepackage{layout}
+\usepackage{listings}
+\usepackage{xcolor}
+%\lstset{language=C++}
+\setlength{\headheight}{13pt}  % 增加头部高度
+\usepackage{float, caption}
+
+% Listings setting for code formatting
+\lstset{
+    basicstyle=\ttfamily,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    tabsize=4,
+}
+
+% some common commands
+\newcommand{\dif}{\mathrm{d}}
+\newcommand{\avg}[1]{\left\langle #1 \right\rangle}
+\newcommand{\difFrac}[2]{\frac{\dif #1}{\dif #2}}
+\newcommand{\pdfFrac}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\OFL}{\mathrm{OFL}}
+\newcommand{\UFL}{\mathrm{UFL}}
+\newcommand{\fl}{\mathrm{fl}}
+\newcommand{\op}{\odot}
+\newcommand{\Eabs}{E_{\mathrm{abs}}}
+\newcommand{\Erel}{E_{\mathrm{rel}}}
+
+\begin{document}
+
+\pagestyle{fancy}
+\fancyhead{}
+\lhead{陈梓锐}
+\chead{22435036}
+\rhead{\today}
+
+
+%\begin{abstract}
+ %   The abstract is not necessary for the theoretical homework, 
+   % but for the programming project, 
+    %you are encouraged to write one.      
+%\end{abstract}
+
+% ============================================
+
+\subsection*{Exercise 11.81}
+考虑ODE$\frac{du}{dt}=f(u,t)$,首先将$u(t^{n+1})$展开到5阶：
+\begin{equation}
+    \begin{aligned}
+          u(t_{n+1}) &= u(t_n) + k u^{\prime}(t_n) + \frac{1}{2}k^2 u^{\prime\prime}(t_n) 
+          + \frac{1}{6}k^3 u^{\prime\prime\prime}(t_n) + \frac{1}{24}k^4 u^{\prime\prime\prime\prime}(t_n)  + O(k^5)\\
+          &= u(t_n) + k f + 
+          \frac{1}{2}k^2 (f f_u + f_t)+ 
+          \frac{1}{6}k^3 (f_{tt} + 2f_{ut}f + f_{uu}f^2 + (f_t + f_u f)f_u )\\
+          & \ \ + \frac{1}{24}k^4
+          ( ( f_{ttt} + 3f_{utt}f + 3f_{uut}f^2 + f_{uuu}f^3 )
+          + 2((f_{ut} + f_{uu}f)(f_t + f_uf) )
+          )\\
+          & \ \ + \frac{1}{24}k^4
+          ( f_u ( f_{tt} + 2f_{ut}f + f_{uu}f^2 + (f_t + f_uf) f_u)
+          + (f_t+f_uf)(f_{uu}f+f_{ut}) ) +O(k^5)
+    \end{aligned}
+\end{equation}
+已知$\L u(t_n) = u(t_{n+1}) - u(t_n) - \frac{k}{6}(y_1 + 2y_2 + 2y_3 + y_4)$,接下来只需把$y_1,y_2,y_3,y_4$展开到4阶：
+\begin{equation}
+    \begin{aligned}
+          y_1 &= f \\
+          y_2 &= f  + \frac{k}{2}(f_u f + f_t) 
+          + \frac{k^2}{8}(f_{tt} + 2f_{ut}f + f_{uu}f^2) 
+          + \frac{k^3}{48}(f_{ttt} + 3f_{utt}f + 3f_{uut}f^2 + f_{uuu}f^3)  +O(k^4)\\
+          y_3 &= f  + \frac{k}{2}(f_u y_2 + f_t) 
+          + \frac{k^2}{8}(f_{tt} + 2f_{ut}y_2 + f_{uu}y_2^2) 
+          + \frac{k^3}{48}(f_{ttt} + 3f_{utt}y_2 + 3f_{uut}y_2^2 + f_{uuu}y_2^3) +O(k^4)\\
+          y_4 &= f  + \frac{k}{2}(f_u y_3 + f_t) 
+          + \frac{k^2}{2}(f_{tt} + 2f_{ut}y_3 + f_{uu}y_3^2) 
+          + \frac{k^3}{6}(f_{ttt} + 3f_{utt}y_3 + 3f_{uut}y_3^2 + f_{uuu}y_3^3) +O(k^4)\\
+    \end{aligned}
+\end{equation}
+代入$\L u(t_n)$表达式可知经典四阶RK方法的局部阶段误差是$O(k^5)$的。
+
+
+
+\subsection*{Exercise 11.87}
+由Corollary11.85, 
+\begin{equation}
+    \begin{aligned}
+        R(z) = 1 + zb^T(1-zA)^{-1}1 &= 1 + \frac{z}{6}
+        \begin{pmatrix}
+            1 & 2 & 2 & 1
+        \end{pmatrix}
+        \begin{pmatrix}
+            1 & & & \\ \frac{z}{2} & 1 & & \\ & -\frac{z}{2} & 1 & \\ & & -\frac{z}{6} & 1
+        \end{pmatrix}^{-1}
+        \begin{pmatrix}
+            1 \\ 1 \\ 1 \\ 1
+        \end{pmatrix} \\
+        &= 1 + \frac{z}{6}
+        \begin{pmatrix}
+            1 & 2 & 2 & 1
+        \end{pmatrix}
+        \begin{pmatrix}
+            1 & & & \\ \frac{z}{2} & 1 & & \\ & \frac{z}{4} & \frac{z}{2} & 1 & \\ \frac{z^3}{4} & \frac{z^2}{2} & z & 1 
+        \end{pmatrix}
+        \begin{pmatrix}
+            1 \\ 1 \\ 1 \\ 1
+        \end{pmatrix} \\
+        &= 1 + z + \frac{z^2}{2} + \frac{z^3}{6} + \frac{z^4}{24}
+    \end{aligned}
+\end{equation}
+
+\subsection*{Exercise 11.91}
+由Corollary11.89, $R_1(z) = 1 + z, R_2(z) = 1 + z + \frac{z^2}{2}, R_3(z) = 1 + z + \frac{z^2}{2} + \frac{z^3}{6}.$
+
+$\forall z \in S_1, |1 + z| \leq 1$
+\begin{equation}
+    |1 + z + \frac{z^2}{2}| = |\frac{1}{2}(z + 1)^2 + \frac{1}{2}| \leq \frac{1}{2}|(z+1)^2 + \frac{1}{2} \leq 1 \Rightarrow z\in S_2.
+\end{equation}
+故$S_1 \subset S_2$.
+
+$\forall z \in S_2, |1 + z + \frac{z^2}{2}| \leq 1$
+
+不妨设$1+z+\frac{z^2}{2} = re^{i\theta}$，其中$r\in [0,1], \theta\in [0,2\pi)$，则$z= \pm \sqrt{2re^{i\theta}-1}-1$
+\begin{equation}
+\begin{aligned}
+    |1+z+\frac{z^2}{2}+\frac{z^3}{6}| &= |re^{i\theta} + \frac{1}{6}(\pm \sqrt{2re^{i\theta}-1}-1)^3 | \\
+                                      &= |re^{i\theta} + \frac{1}{6}(\pm(2re^{i\theta}-1)^{3/2} - 3(2re^{i\theta}-1) \pm3\sqrt{2re^{i\theta}-1} -1) | \\
+                                      &= |\pm \frac{1}{6}(2re^{i\theta}-1)^{3/2} + \frac{1}{3} \pm \frac{1}{2}(2re^{i\theta}-1)^{1/2} | \\
+                                      &\leq \frac{1}{3} + \frac{1}{6} + \frac{1}{2} = 1
+\end{aligned}
+\end{equation}
+故$S_2 \subset S_3$.
+
+$R_4(z) = 1 + z + \frac{z^2}{2} + \frac{z^3}{6} + \frac{z^4}{24}$.令$z=2i$, 
+\begin{equation}
+\begin{aligned}
+    |R_3(2i)| &= |1 + 2i + (-2) - \frac{8i}{6}| = |\frac{2}{3}i - 1| > 1 \\
+    |R_4(2i)| &= |1 + 2i + (-2) - \frac{8i}{6} + \frac{16}{24}| = |\frac{2}{3}i - \frac{1}{3}| < 1 \\
+\end{aligned}
+\end{equation}
+故$S_3 \not\subset S_4$.
+
+\subsection*{Exercise 11.97}
+由Defination11.24, 若RK method是A-stable且$\lim_{z \to \infty} |R(z)| = 0$,
+
+此时
+\begin{equation}
+\begin{aligned}
+    \lim_{z \to \infty} |R(z)| = \lim_{z \to \infty} \left|\frac{P(z)}{Q(z)}\right| 
+    &= \lim_{z \to \infty} \left|\frac{P_m z^m + \cdots + P_1 z + P_0}{Q_n z^n + \cdots + Q_1 z + Q_0}\right| \\
+    &= \begin{cases}
+            \frac{P_m}{Q_n} & $if $ m=n \\
+            0 & $if $ m<n \\
+            \infty & $if $ m>n
+        \end{cases}
+\end{aligned}
+\end{equation}
+    
+
+故L-stable$\Leftrightarrow m<n \Leftrightarrow deqp < deqq$
+
+\subsection*{Exercise 11.100}
+$Ae_1=b_11 \Rightarrow b_1^{-1}e_1=A^{-1}1$
+
+由Corollary11.85
+\begin{equation}
+\begin{aligned}
+    \lim_{z \to \infty} |R(z)| &= \lim_{z \to \infty} |1 + zb^T(1-zA)^{-1}1| \\
+                               &= 1 + \lim_{z \to \infty} |b^T(\frac{1}{z}-A){-1}| \\
+                               &= 1 - b^TA^{-1} 1 \\
+                               &= 1 - b_1^{-1}b^Te_1 = 0
+\end{aligned}
+\end{equation}
+
+\subsection*{Exercise 11.105}
+配点法的根$\frac{4-\sqrt{6}}{10}, \frac{4+\sqrt{6}}{10}, 1$,
+令$f(t) = (t - \frac{4-\sqrt{6}}{10})(t - \frac{4+\sqrt{6}}{10})(t - 1)$, 
+\begin{equation}
+\begin{aligned}
+    <f(t),1> &= \int_{0}^{1}(t - \frac{4-\sqrt{6}}{10})(t - \frac{4+\sqrt{6}}{10})(t - 1)dt = 0 \\
+    <f(t),t> &= \int_{0}^{1}t(t - \frac{4-\sqrt{6}}{10})(t - \frac{4+\sqrt{6}}{10})(t - 1)dt = 0 \\
+    <f(t),t^2> &= \int_{0}^{1}t^2(t - \frac{4-\sqrt{6}}{10})(t - \frac{4+\sqrt{6}}{10})(t - 1)dt \neq 0
+\end{aligned}
+\end{equation}
+由Theorem11.68可知，$S=3, r=2$,故accurate=5。
+
+因为方法是stiffy accurate的，用python计算可知，$R(z) = 1 + zb^T(1-zA)^{-1}1 = \frac{3z^2+24z+60}{z^3-9z^2+36z-60}$.
+
+令z=ki，
+\begin{equation}
+    R(ki) = |\frac{-3k^2+24ki+60}{-k^3i+9k^2+36ki-60}| \leq 1.
+\end{equation}
+故方法是I-stable的。
+
+又$Q(z)=z^3-9z^2+36z-60$的根都有正实部，故方法L-stable。
+
+\subsection*{Exercise 11.114}
+$\left\{
+    \begin{aligned}
+        U^{n+1} &= U^n + ky_1 \\
+        y_1 &= f(\frac{U^n + U^{n+1}}{2}, t_n + \frac{k}{2}) = f(U^n + \frac{ky_1}{2}, t_n)
+    \end{aligned}
+\right.$
+
+Butcher tableau:
+\begin{table}[H]
+    \centering
+    \begin{tabular}{c|c}
+        $\frac{1}{2}$ & $\frac{1}{2}$ \\
+        \hline
+                    & 1
+    \end{tabular}
+\end{table}
+因为f是contractive，则$<u-v, f(u,t)-f(v,t)> \leq 0$。
+
+令$e^n = U^n - V^n,U^{n+1} = U^n + kf(U^n + \frac{k}{2}y_u, t_n+\frac{k}{2}),
+                   V^{n+1} = V^n + kf(V^n + \frac{k}{2}y_v, t_n+\frac{k}{2})$,考虑
+\begin{equation}
+\begin{aligned}
+    & <\frac{U^{n+1}+U^n}{2} - \frac{V^{n+1}-V^n}{2}, f(\frac{U^{n+1}+U^n}{2}, t_n+\frac{k}{2}) - f(\frac{V^{n+1}-V^n}{2}, t_n+\frac{k}{2})> \\
+    &= <\frac{1}{2}(e^{n+1}+e^n), \frac{U^{n+1}-U^n}{k}-\frac{V^{n+1}-V^n}{k}> \\
+    &= \frac{1}{2k}<e^{n+1}, e^n, e^{n+1}-e^n> \\
+    &= \frac{1}{2k}<e^{n+1}, e^{n+1}> - \frac{1}{2k}<e^n, e^n> \leq 0 \\
+    \Rightarrow ||e^{n+1}||^2 \leq ||e^n||^2 
+\end{aligned}
+\end{equation}
+说明方法是B-stable的。
+
+
+
+
+
+
+
+
+
+% ===============================================
+
+\end{document}
