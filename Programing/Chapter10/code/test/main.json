@@ -1,9 +1,9 @@
 {
     "FuncName" : "Func",
-    "method" : "GLRK2",
+    "method" : "GLRK5",
     "output_file" : "output",
-    "condition_type" : 2,
-    "step" :20000,
+    "condition_type" : 1,
+    "step" :2000,
     "print_accurate" : false,
     "is_test" : false
 }

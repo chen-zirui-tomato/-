@@ -702,10 +702,10 @@ private:
                             {(3+sqrt(3))/6, (3+2*sqrt(3))/12, 1.0/4},
                             {0xffffff, 1.0/2, 1.0/2}}; break;
             case 3:
-                coeffs_3 = {{(5-sqrt(15))/10, 5.0/36, (2.0/9-sqrt(15)/15), 5.0/36-sqrt(15)/30},
-                            {1.0/2, 5.0/36+sqrt(15)/24, 2.0/9, 5.0/36-sqrt(15)/24},
-                            {(5+sqrt(15))/10, 5.0/36-sqrt(15)/30, 2.0/9+sqrt(15)/15, 5.0/36},
-                            {0xffffff, 15.0/18, 4.0/9, 5.0/18}}; break;
+                coeffs_3 = {{0.5 - sqrt(15.0)/10.0, 5.0/36.0,2.0/9.0 - sqrt(15.0)/15.0, 5.0/36.0 - sqrt(15.0)/30.0},
+                            {0.5, 5.0/36.0 + sqrt(15.0)/24.0, 2.0/9.0, 5.0/36.0 - sqrt(15.0)/24.0},
+                            {0.5 + sqrt(15.0)/10.0, 5.0/36.0 + sqrt(15.0)/30.0, 2.0/9.0 + sqrt(15.0)/15.0, 5.0/36.0},
+                            {0xffffff, 5.0/18.0, 4.0/9.0, 5.0/18.0} }; break;
             case 4:
                 coeffs_4 = {{0.06943184420297371, 0.08696371128436343, -0.026604180084998794, 0.012627462689404725, -0.003555149685795685},
                             {0.33000947820757187, 0.1881181174998681, 0.16303628871563644, -0.027880428602470822, 0.00673550059453814},
@@ -760,33 +760,41 @@ private:
             std::vector<double> u_prev = u_[i-1];
             double t_prev = (i - 1) * h;
     
-            // 初始猜测：每个 Y[j] = u_prev
-            std::vector<std::vector<double>> Y(order_, u_prev);
-            for (int j = 0; j < order_; ++j) {
-                std::vector<double> f0 = Func(u_prev, t_prev + coefficients_[j][0] * h);
-                for (int k = 0; k < 6; ++k)
-                    Y[j][k] += h * coefficients_[j][1] * f0[k];
-            }
+            // //？？？这在干什么，我应该要初始化Y
+            // for (int j = 0; j < order_; ++j) {
+            //     std::vector<double> f0 = Func(u_prev, t_prev + coefficients_[j][0] * h);
+            //     // for (int k = 0; k < 6; ++k)
+            //     //     Y[j][k] += h * coefficients_[j][k] * f0[k];
+            //     Y[j] += h * coefficients_[j][1] * f0;
+            // }
+            // // 好像根不不需要初始化Y？
+            // for(int j = 0; j < order_; ++j){
+            //     std::vector<double> sum(6, 0.0);
+            //     for(int k = 0; k < order_; ++k)
+            //         sum += coefficients_[j][k+1]*Y[k];
+            //     Y[j] = Func(u_prev + sum, t_prev + coefficients_[j][0] * h);
+            // }
     
             // 构造 G 函数用于 Newton
-            auto G = [&](const std::vector<std::vector<double>>& Y_input) -> std::vector<std::vector<double>> {
+            auto G = [&](const std::vector<std::vector<double>>& Y) -> std::vector<std::vector<double>> {
                 std::vector<std::vector<double>> result(order_, std::vector<double>(6, 0.0));
+                // j代表我们在计算Y[j]的零求解函数
                 for (int j = 0; j < order_; ++j) {
                     std::vector<double> sum(6, 0.0);
                     for (int k = 0; k < order_; ++k) {
-                        auto fYk = Func(Y_input[k], t_prev + coefficients_[k][0] * h);  // c_k h
-                        for (int l = 0; l < 6; ++l) {
-                            sum[l] += coefficients_[j][k + 1] * fYk[l];  // A[j][k]
-                        }
+                        sum += coefficients_[j][k+1]*Y[k];
                     }
-                    for (int l = 0; l < 6; ++l) {
-                        result[j][l] = Y_input[j][l] - u_prev[l] - h * sum[l];
-                    }
+                    result[j] = Y[j] - Func(u_prev + h*sum, t_prev + coefficients_[j][0] * h);
                 }
                 return result;
-            };
+            };  
 
-            Y = highOrderNewton(G, Y, 1e-10, 50);
+            // 如何选择初始猜测??
+            std::vector<std::vector<double>> Y_predict(order_, u_prev);
+            // std::vector<std::vector<double>> Y_predict(order_, std::vector<double>(6, 0.0));
+            // for(int j = 0; j < order_; ++j)
+            //     Y_predict[j] = u_prev + h*coefficients_[order_][j+1]*Func(u_prev, (i+coefficients_[j][0])*h);
+            Y = highOrderNewton(G, Y_predict, 1e-10, 20);
 
             // 计算 u_i
             std::vector<double> temp(6, 0.0);
@@ -1113,7 +1121,3 @@ inline std::unique_ptr<EquationSolver> createFSolver(int order){
 inline std::unique_ptr<EquationSolver> createDPSolver(int order){
     return std::unique_ptr<EquationSolver>(new DPSolver(order));
 }
-
-
-
-

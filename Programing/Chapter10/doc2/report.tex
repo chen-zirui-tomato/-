@@ -86,21 +86,24 @@
 \begin{enumerate}
     \item method选择不同的方法与精度
     \item conditiontype选择不同的初始条件
-    \item step选择不同的步长
+    \item step选择不同的步数
     \item print\_accurate选择是否打印数值精度
     \item is\_test选择是否进行测试
 \end{enumerate}
 
+注意，使用AB，AM，BDF，GLRK方法时需要指定精度，否则会报错；反之使用CRK，ESDIRK，
+Feldberg，Dormand-Prince方法时不需要指定精度，否则会报错。
 
-\subsection*{CRK方法在步长6000}
+%====================================================================
+\subsection*{CRK方法在步数6000}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.3\textwidth]{CRK1.png}
     \includegraphics[width=0.3\textwidth]{CRK2.png}
     \caption{CRK方法}
 \end{figure}
-注意到CRK方法在6000步时图像与真实值有较大差异，是因为步长过大导致的，
-只要减小步长，就可以得到比较好的结果。
+注意到CRK方法在6000步时图像与真实值有较大差异，是因为步数过大导致的，
+只要减小步数，就可以得到比较好的结果。
 \begin{enumerate}
     \item [CRK] 误差 = 2.15143, 
     Total CPU Time : 0.033 seconds.
@@ -110,7 +113,92 @@
     
 \end{enumerate}
 
-\subsection*{ESDIRK方法在步长24000}
+%=======================================================================
+\subsection*{GLRK2方法在步数20000}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{GLRK21.png}
+    \includegraphics[width=0.3\textwidth]{GLRK22.png}
+    \caption{GLRK2方法}
+\end{figure}
+\begin{enumerate}
+    \item [GLRK2] 误差 = 0.0825451,
+    Total CPU Time : 4.142 seconds.
+    
+    \item [GLRK2] 误差 = 7.96211e-10,
+    Total CPU Time : 4.61 seconds.
+    
+\end{enumerate}
+
+%========================================================================
+\subsection*{GLRK3方法在步数20000}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{GLRK31.png}
+    \includegraphics[width=0.3\textwidth]{GLRK32.png}
+    \caption{GLRK3方法}
+\end{figure}
+\begin{enumerate}
+    \item [GLRK3] 误差 = 0.000417799,
+    Total CPU Time : 10.656 seconds.
+    \item [GLRK3] 误差 = 8.47606e-11,
+    Total CPU Time : 10.226 seconds.
+    
+    
+\end{enumerate}
+
+%=====================================================================
+\subsection*{GLRK4方法在步数20000}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{GLRK41.png}
+    \includegraphics[width=0.3\textwidth]{GLRK42.png}
+    \caption{GLRK4方法}
+\end{figure}
+\begin{enumerate}
+    \item [GLRK4] 误差 = 3.54278e-07,
+    Total CPU Time : 21.749 seconds.
+    
+    \item [GLRK4] 误差 = 8.3357e-11,
+    Total CPU Time : 20.065 seconds.
+    
+    
+\end{enumerate}
+
+%======================================================================
+\subsection*{GLRK5方法在步数20000}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{GLRK51.png}
+    \includegraphics[width=0.3\textwidth]{GLRK52.png}
+    \caption{GLRK5方法}
+\end{figure}
+\begin{enumerate}
+    \item [GLRK5] 误差 = 2.44163e-09,
+    Total CPU Time : 35.829 seconds.
+    
+    \item [GLRK5] 误差 = 8.31289e-11,
+    Total CPU Time : 35.671 seconds.
+
+\end{enumerate}
+这里再贴出使用步数为2000时，GLRK5的结果：
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{GLRK53.png}
+    \includegraphics[width=0.3\textwidth]{GLRK54.png}
+    \caption{GLRK5方法}
+\end{figure}
+
+\begin{enumerate}
+    \item [GLRK5] 误差 = 1.83251
+    Total CPU Time : 3.103 seconds.
+    \item [GLRK5] 误差 = 8.29844e-11
+    Total CPU Time : 3.325 seconds.
+\end{enumerate}
+发现能在时间大大缩短的情况下，仍然保持较好的收敛性。
+
+%=======================================================================
+\subsection*{ESDIRK方法在步数24000}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.3\textwidth]{ESDIRK1.png}
@@ -124,13 +212,16 @@
     Total CPU Time : 5.822 seconds.
 \end{enumerate}
 
-\subsection*{Feldberg方法在步长100}
+
+%========================================================================
+\subsection*{Feldberg方法在步数100}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.3\textwidth]{F1.png}
     \includegraphics[width=0.3\textwidth]{F2.png}
     \caption{Feldberg方法}
 \end{figure}
+
 \begin{enumerate}
     \item [Fehlberg method] 误差 = 1.95975, 
     Total CPU Time : 0.016 seconds.
@@ -138,13 +229,16 @@
     Total CPU Time : 0.017 seconds.
 \end{enumerate}
 
-\subsubsection*{Dormand-Prince方法在步长100}
+
+%============================================================================
+\subsubsection*{Dormand-Prince方法在步数100}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.3\textwidth]{DP1.png}
     \includegraphics[width=0.3\textwidth]{DP2.png}
     \caption{Dormand-Prince方法}
 \end{figure}
+
 \begin{enumerate}
     \item [Dormand-Prince method] 误差 = 2.41591, 
     Total CPU Time : 0.02 seconds.    
@@ -153,45 +247,53 @@
 \end{enumerate}
 
 
+\subsection*{总结}
+收敛情况最好的是Gauss-Legendre RK方法，但是缺点是计算时间数，这跟步数有关，也跟我使用newton迭代求解时
+使用的初始值不够精确有关。
+
+Feldberg方法和Dormand-Prince方法的计算时间最少，因为他使用的步数最短，只有一百步，但是因为规定了$\rho_{min}$最
+小不得少于0.2,所以导致画出来的图片不够光滑，误差也比较大。
+
+其他的方法表现中规中居，我觉得能兼顾收敛速度和精度，是经典RK方法。
 
 
-\subsection*{收敛阶}
-对于一个p阶方法，用步长h求解一个IVPs时，其全局误差E(h)应满足$E(h)\approx O(h^{p})$。
-对于两个不同的网格$h_1=\frac{T}{N_1}, h_2=\frac{T}{N_2}$,可以用式$p\approx \frac{log(E_1/E_2)}{log(h_1/h_2)}$来估算收敛阶。
+% \subsection*{收敛阶}
+% 对于一个p阶方法，用步数h求解一个IVPs时，其全局误差E(h)应满足$E(h)\approx O(h^{p})$。
+% 对于两个不同的网格$h_1=\frac{T}{N_1}, h_2=\frac{T}{N_2}$,可以用式$p\approx \frac{log(E_1/E_2)}{log(h_1/h_2)}$来估算收敛阶。
 
-下面我们利用（10.93）式，计算收敛阶。
+% 下面我们利用（10.93）式，计算收敛阶。
 
-\begin{table}[H]
-    \centering
-    \caption{AB4、BDF4 与 AM5 方法在不同步长下的误差与收敛阶}
-    \begin{tabular}{|c|c|c|c|c|}
-    \hline
-    方法 & $N$ & 步长 $h$ & 误差 $\|u - u_h\|$ & 收敛阶 $p$ \\
-    \hline
-    \multirow{4}{*}{AB4}
-    & 10000 & 0.00191405  & $2.20725 \times 10^{-6}$ & --     \\
-    & 20000 & 0.00095703  & $7.80855 \times 10^{-8}$ & 4.82   \\
-    & 40000 & 0.00047851  & $9.30889 \times 10^{-9}$ & 3.07   \\
-    & 80000 & 0.00023926  & $6.64014 \times 10^{-10}$ & 3.81  \\
-    \hline
-    \multirow{4}{*}{BDF4}
-    & 10000 & 0.00191405  & $1.48016 \times 10^{-6}$ & --     \\
-    & 20000 & 0.00095703  & $4.05638 \times 10^{-8}$ & 5.19   \\
-    & 40000 & 0.00047851  & $5.26787 \times 10^{-9}$ & 2.94   \\
-    & 80000 & 0.00023926  & $5.22306 \times 10^{-10}$ & 3.33  \\
-    \hline
-    \multirow{4}{*}{AM5}
-    & 10000 & 0.00191405  & $1.93293 \times 10^{-7}$ & --     \\
-    & 20000 & 0.00095703  & $6.11855 \times 10^{-9}$ & 4.98   \\
-    & 40000 & 0.00047851  & $2.64776 \times 10^{-10}$ & 4.53  \\
-    & 80000 & 0.00023926  & $9.28519 \times 10^{-11}$ & 1.51  \\
-    \hline
-    \end{tabular}
-\end{table}
+% \begin{table}[H]
+%     \centering
+%     \caption{AB4、BDF4 与 AM5 方法在不同步数下的误差与收敛阶}
+%     \begin{tabular}{|c|c|c|c|c|}
+%     \hline
+%     方法 & $N$ & 步数 $h$ & 误差 $\|u - u_h\|$ & 收敛阶 $p$ \\
+%     \hline
+%     \multirow{4}{*}{AB4}
+%     & 10000 & 0.00191405  & $2.20725 \times 10^{-6}$ & --     \\
+%     & 20000 & 0.00095703  & $7.80855 \times 10^{-8}$ & 4.82   \\
+%     & 40000 & 0.00047851  & $9.30889 \times 10^{-9}$ & 3.07   \\
+%     & 80000 & 0.00023926  & $6.64014 \times 10^{-10}$ & 3.81  \\
+%     \hline
+%     \multirow{4}{*}{BDF4}
+%     & 10000 & 0.00191405  & $1.48016 \times 10^{-6}$ & --     \\
+%     & 20000 & 0.00095703  & $4.05638 \times 10^{-8}$ & 5.19   \\
+%     & 40000 & 0.00047851  & $5.26787 \times 10^{-9}$ & 2.94   \\
+%     & 80000 & 0.00023926  & $5.22306 \times 10^{-10}$ & 3.33  \\
+%     \hline
+%     \multirow{4}{*}{AM5}
+%     & 10000 & 0.00191405  & $1.93293 \times 10^{-7}$ & --     \\
+%     & 20000 & 0.00095703  & $6.11855 \times 10^{-9}$ & 4.98   \\
+%     & 40000 & 0.00047851  & $2.64776 \times 10^{-10}$ & 4.53  \\
+%     & 80000 & 0.00023926  & $9.28519 \times 10^{-11}$ & 1.51  \\
+%     \hline
+%     \end{tabular}
+% \end{table}
 
-发现AB4和BDF4的收敛阶都超过了4,这是因为初值给定的非常精确而出现了超收敛的现象。
+% 发现AB4和BDF4的收敛阶都超过了4,这是因为初值给定的非常精确而出现了超收敛的现象。
 
-而AM5的收敛阶却突然减小，原因是其误差已经达到了机器精度，导致相对误差变得不再可靠。
+% 而AM5的收敛阶却突然减小，原因是其误差已经达到了机器精度，导致相对误差变得不再可靠。
 
 % ===============================================
 

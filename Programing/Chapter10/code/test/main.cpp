@@ -14,7 +14,7 @@ void test_convergence(EquationSolver* solver,
     double h = T / N;
     hs.push_back(h);
 
-    std::string dummy_file = "temp.txt"; // 或者用 /dev/null
+    std::string dummy_file = "temp.txt";
     solver->solve(Func, T, N, condition_type, dummy_file, false);
 
     std::vector<double> u_start = solver->get_u_start();  //初始解

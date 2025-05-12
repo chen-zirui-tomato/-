@@ -77,5 +77,4 @@ inline void RegisterAllEquationSolvers() {
     fac.registerEquationSolver("F", &createFSolver);
     fac.registerEquationSolver("DP", &createDPSolver);
 }
-
 // 注册完成，可以创建实例了
