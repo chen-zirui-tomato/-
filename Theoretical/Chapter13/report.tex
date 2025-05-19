@@ -1,0 +1,110 @@
+\documentclass[UTF8]{ctexart}
+\usepackage{geometry}
+\usepackage[backend=biber, style=authoryear]{biblatex} % 示例配置
+\addbibresource{references.bib} % 替换为你的参考文献文件
+\geometry{margin=1.5cm, vmargin={0pt,1cm}}
+\setlength{\topmargin}{-1cm}
+\setlength{\paperheight}{29.7cm}
+\setlength{\textheight}{25.3cm}
+
+% useful packages.
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{enumerate}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{fancyhdr}
+\usepackage{layout}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{multirow}
+\lstset{language=C++}
+\setlength{\headheight}{13pt}  % 增加头部高度
+\usepackage{float, caption}
+
+% Listings setting for code formatting
+\lstset{
+    basicstyle=\ttfamily,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    tabsize=4
+}
+
+% some common commands
+\newcommand{\dif}{\mathrm{d}}
+\newcommand{\avg}[1]{\left\langle #1 \right\rangle}
+\newcommand{\difFrac}[2]{\frac{\dif #1}{\dif #2}}
+\newcommand{\pdfFrac}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\OFL}{\mathrm{OFL}}
+\newcommand{\UFL}{\mathrm{UFL}}
+\newcommand{\fl}{\mathrm{fl}}
+\newcommand{\op}{\odot}
+\newcommand{\Eabs}{E_{\mathrm{abs}}}
+\newcommand{\Erel}{E_{\mathrm{rel}}}
+
+\begin{document}
+
+\pagestyle{fancy}
+\fancyhead{}
+\lhead{陈梓锐}
+\chead{22435036}
+\rhead{\today}
+
+
+%\begin{abstract}
+ %   The abstract is not necessary for the theoretical homework, 
+   % but for the programming project, 
+    %you are encouraged to write one.      
+%\end{abstract}
+
+% ============================================
+\section*{理论作业}
+\subsection*{Exercise 12.11}
+$u_t = vu_{xx}\ \in \omega := (0,1)\times(0,T)$
+\begin{equation}
+    \begin{aligned}
+        \frac{U_i^{n+1}-U_i^n}{k} &= \frac{1}{2}(f(U_i^n, t_n)+f(U_i^{n+1},t_{n+1})) \\
+                                  &= \frac{v}{2h^2}(U^n_{i-1} - 2U_i^n + U^n_{i+1}
+                                                  + U_{i-1}^{n+1} - 2U_i^{n+1} + U_{i+1}^{n+1})
+    \end{aligned}
+\end{equation}
+\begin{equation}
+    \begin{aligned}
+        \Rightarrow U_i^{n+1} - \frac{kv}{2h^2}(U^{n+1}_{i-1} - 2U_i^{n+1} + U_{i+1}^{n+1}) 
+                 &= U_i^n + \frac{kv}{2h^2}(U^n_{i-1} - 2U_i^n + U^n_{i+1}) \\
+                 (1 - \frac{k}{2}A)U^{n+1} &= (1 + \frac{k}{2}A)U^n + b^n
+    \end{aligned}
+\end{equation}
+其中$U^n = (U_1^n, U_2^n, \cdots, U_m^n)^T, b^n = \frac{r}{2}(g_0(t_n)+g_0(t_{n+1}), 0, \cdots, 0, g_1(t_n)+g_1(t_{n+1}))^T$.
+
+\subsection*{Exercise 12.26}
+将空间离散化，得到ODE系统$\frac{du}{dt} = Au, A=\frac{v}{h^2}D$,$\theta$-离散公式$\frac{U^{n+1}-U^n}{k} = \theta\lambda U^{n+1} + (1-\theta)\lambda U^n$,
+令$z=k\lambda$，有$U^{n+1} = \frac{1 + (1-\theta)z}{1-\theta z}U^n$.
+
+令$R(z) = \frac{1+(1-\theta)z}{1-\theta z}, |R(z)|\leq 1, z\in \mathbb{R}^{-}$,则
+\begin{equation}
+    \begin{aligned}
+        (\frac{1+(1-\theta)z}{1-\theta z})^2 \leq 1 &\Rightarrow (1+(1-\theta)z)^2 \leq (1-\theta z)^2 \\
+                                                    &\Rightarrow 1 + 2(1-\theta)z + (1-\theta)^2z^2 \leq 1 - 2\theta z + \theta^2z^2 \\
+                                                    &\Rightarrow 2z + z^2 -2\theta z^2 \leq 0 \\
+                                                    &\Rightarrow (1 - 2\theta )z^2 \leq -2z
+    \end{aligned}
+\end{equation}
+\begin{enumerate}
+    \item 若$\theta \in [\frac{1}{2}, 1], (1-2\theta)z^2 \leq 0 \leq -2z$,此时方法A-stable,故MOL方法无条件稳定。
+    \item 若$\theta \in [0, \frac{1}{2}] ,(1 - 2\theta )z^2 \leq -2z\Rightarrow z \geq \frac{-2}{1-2\theta}$,
+          因为$\lambda \geq -\frac{4v}{h^2}$,所以$k \leq \frac{h^2}{2v(1-2\theta)}$时MOL方法稳定。
+\end{enumerate}
+
+
+% ===============================================
+
+\end{document}
